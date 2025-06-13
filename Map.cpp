@@ -17,23 +17,21 @@ Map::~Map()
     }
 }
 
-void Map::setPlayer(Player player)
+void Map::setPlayer(const Player& player)
 {
-    if (this->player)
+    if (!this->player)
     {
-        return;
+        this->player = new Player(player);
     }
-    this->player = &player;
 }
 
 void Map::setPlayer(int x, int y, int width, int height)
 {
-    if (this->player)
+    if (!this->player)
     {
-        return;
+        player = new Player{ x, y, width, height };
+        setPlayerSpeed(0.0f);
     }
-    player = new Player{ x, y, width, height };
-    setPlayerSpeed(0.0f);
 }
 
 void Map::setPlayerSpeed(float speed)

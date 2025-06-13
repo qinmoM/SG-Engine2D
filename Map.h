@@ -28,7 +28,7 @@ protected:
 public:
     Map();                                                  // constructor
     ~Map();                                                 // destructor
-    void setPlayer(Player player);                          // set the player in the map
+    void setPlayer(const Player& player);                   // set the player in the map
     void setPlayer(int x, int y, int width, int height);    // set the player in the map
     void setPlayerSpeed(float speed);                       // set the speed of the player in the map
     Player* getPlayer();                                    // get the player in the map
