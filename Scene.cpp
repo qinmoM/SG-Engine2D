@@ -3,9 +3,29 @@
 Scene::Scene()
 {
     m_map = new Map;
-    m_map->addObstacle(100, 100, 100, 10);
-    m_map->addObstacle(200, 200, 10, 100);
-    m_map->setPlayer(300, 200, 20, 20);
+    // obstacles
+    m_map->addObstacle(115, 115, 770, 20);
+    m_map->addObstacle(115, 135, 20, 750);
+    m_map->addObstacle(135, 865, 750, 20);
+    m_map->addObstacle(865, 135, 20, 125);
+    m_map->addObstacle(865, 365, 20, 500);
+    m_map->addObstacle(135, 740, 375, 20);
+    m_map->addObstacle(135, 615, 250, 20);
+    m_map->addObstacle(240, 365, 20, 250);
+    m_map->addObstacle(240, 240, 145, 20);
+    m_map->addObstacle(365, 260, 20, 250);
+    m_map->addObstacle(385, 490, 125, 20);
+    m_map->addObstacle(490, 510, 20, 230);
+    m_map->addObstacle(490, 135, 20, 250);
+    m_map->addObstacle(510, 365, 125, 20);
+    m_map->addObstacle(615, 240, 20, 125);
+    m_map->addObstacle(615, 510, 20, 250);
+    m_map->addObstacle(615, 490, 125, 20);
+    m_map->addObstacle(740, 260, 20, 250);
+    m_map->addObstacle(740, 240, 125, 20);
+    m_map->addObstacle(740, 615, 20, 250);
+    // player
+    m_map->setPlayer(176, 678, 20, 20);
     m_map->setPlayerSpeed(3 / 0.0166f);
 }
 

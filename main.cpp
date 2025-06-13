@@ -3,10 +3,13 @@
 #include <ctime>
 #include "Scene.h"
 
+const int SCREEN_WIDTH = 1000;
+const int SCREEN_HEIGHT = 1000;
+
 int main()
 {
     // Initialize the window
-    InitWindow(1280, 720, "Test");
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Map");
     // Init Audio device
     InitAudioDevice();
     // init data
