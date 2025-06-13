@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <memory>
+#include <ctime>
 #include "Scene.h"
 
 int main()
@@ -12,6 +13,7 @@ int main()
     //Scene* scene = Scene::create();
     std::unique_ptr<Scene> scene(Scene::create());
 
+    float timeLast = 0.0f;
     // Set the target FPS
     SetTargetFPS(60);
     // Main game loop
@@ -21,6 +23,8 @@ int main()
         // Update
         ClearBackground(WHITE);
         scene->draw();
+        scene->update((clock() - timeLast) / (float)CLOCKS_PER_SEC);
+        timeLast = clock();
         
         EndDrawing();
     }

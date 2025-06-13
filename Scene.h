@@ -12,10 +12,7 @@ protected:
     Map* m_map;
 public:
     ~Scene();
-    // void isSuccess()
-    // {
-    //     std::cout << "Success" << std::endl;
-    // }
     static Scene* create();
     void draw();
+    void update(float delta);
 };
