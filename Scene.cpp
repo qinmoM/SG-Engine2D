@@ -26,7 +26,10 @@ Scene::Scene()
     m_map->addObstacle(740, 615, 20, 250);
     // player
     m_map->setPlayer(176, 678, 20, 20);
-    m_map->setPlayerSpeed(3 / 0.0166f);
+    m_map->setPlayerSpeed(140);
+    m_map->setPlayerDataManage();
+    Player* player = m_map->getPlayer();
+    player->DMS->setHP(10);
 }
 
 Scene::~Scene()
@@ -45,52 +48,51 @@ void Scene::draw()
     for (int i = 0; i < all; i++)
     {
         Obstacle* obstacle = m_map->getObstacle(i);
-        DrawRectangleLines(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
+        DrawRectangle(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
     }
     Player* player = m_map->getPlayer();
-    DrawRectangleLines(player->x, player->y, player->width, player->height, Color{ 55, 155, 55, 255 });
+    DrawRectangle(player->x, player->y, player->width, player->height, Color{ 55, 155, 55, 255 });
 }
 
 void Scene::update(float delta)
 {
     // player movement
     Player* player = m_map->getPlayer();
-    int speed = player->speed;
+    float speed = player->speed;
     // buffer movement
-    int moveX = 0;
-    int moveY = 0;
+    float moveX = 0;
+    float moveY = 0;
     // check if player is diagonal movement
-    bool isDiagonal = (IsKeyDown(KEY_UP)   &&   IsKeyDown(KEY_RIGHT)  ||
-                       IsKeyDown(KEY_UP)   &&   IsKeyDown(KEY_LEFT)   ||
-                       IsKeyDown(KEY_DOWN) &&   IsKeyDown(KEY_RIGHT)  ||
-                       IsKeyDown(KEY_DOWN) &&   IsKeyDown(KEY_LEFT)   ||
-                       IsKeyDown(KEY_W)    &&   IsKeyDown(KEY_D)      ||
-                       IsKeyDown(KEY_W)    &&   IsKeyDown(KEY_A)      ||
-                       IsKeyDown(KEY_S)    &&   IsKeyDown(KEY_D)      ||
-                       IsKeyDown(KEY_S)    &&   IsKeyDown(KEY_A)      );
-    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W))
+    bool up     =  IsKeyDown(KEY_UP)    ||  IsKeyDown(KEY_W);
+    bool down   =  IsKeyDown(KEY_DOWN)  ||  IsKeyDown(KEY_S);
+    bool left   =  IsKeyDown(KEY_LEFT)  ||  IsKeyDown(KEY_A);
+    bool right  =  IsKeyDown(KEY_RIGHT) ||  IsKeyDown(KEY_D);
+    bool isDiagonal = (up && right) || (up && left) || (down && right) || (down && left);
+    if (up)
     {
-        moveY -= isDiagonal ? speed * delta * 0.7071f : speed * delta;
+        moveY -= isDiagonal ? speed * 0.7071f * delta : speed * delta;
     }
-    if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S))
+    if (down)
     {
-        moveY += isDiagonal ? speed * delta * 0.7071f : speed * delta;
+        moveY += isDiagonal ? speed * 0.7071f * delta : speed * delta;
     }
-    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A))
+    if (left)
     {
-        moveX -= isDiagonal ? speed * delta * 0.7071f : speed * delta;
+        moveX -= isDiagonal ? speed * 0.7071f * delta : speed * delta;
     }
-    if (IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D))
+    if (right)
     {
-        moveX += isDiagonal ? speed * delta * 0.7071f : speed * delta;
+        moveX += isDiagonal ? speed * 0.7071f * delta : speed * delta;
     }
     // update player position
-    if (!m_map->isColliding(player->x + moveX, player->y))
+    bool xIsColliding = false;
+    bool yIsColliding = false;
+    if (moveX && !(xIsColliding = m_map->isColliding(player->x + moveX, player->y)))
     {
-        player->x += moveX;
+        player->x += yIsColliding ? moveX * 1.4142f : moveX;
     }
-    if (!m_map->isColliding(player->x, player->y + moveY))
+    if (moveY && !(yIsColliding = m_map->isColliding(player->x, player->y + moveY)))
     {
-        player->y += moveY;
+        player->y += xIsColliding ? moveY * 1.4142f : moveY;
     }
 }

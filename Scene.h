@@ -3,6 +3,7 @@
 #include "Map.h"
 #include <raylib.h>
 #include <iostream>
+#include <ctime>
 
 class Scene
 {

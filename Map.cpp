@@ -25,11 +25,11 @@ void Map::setPlayer(const Player& player)
     }
 }
 
-void Map::setPlayer(int x, int y, int width, int height)
+void Map::setPlayer(float x, float y, int w, int h)
 {
     if (!this->player)
     {
-        player = new Player{ x, y, width, height };
+        player = new Player{ x, y, w, h };
         setPlayerSpeed(0.0f);
     }
 }
@@ -42,6 +42,14 @@ void Map::setPlayerSpeed(float speed)
     }
 }
 
+void Map::setPlayerDataManage()
+{
+    if (player->DMS == nullptr)
+    {
+        player->DMS = DataManage::create();
+    }
+}
+
 Player* Map::getPlayer()
 {
     return player;
@@ -49,6 +57,11 @@ Player* Map::getPlayer()
 
 void Map::clearPlayer()
 {
+    if (player->DMS)
+    {
+        delete player->DMS;
+        player->DMS = nullptr;
+    }
     delete player;
     player = nullptr;
 }
@@ -58,9 +71,9 @@ void Map::addObstacle(Obstacle obstacle)
     obstacles.push_back(&obstacle);
 }
 
-void Map::addObstacle(int x, int y, int width, int height)
+void Map::addObstacle(float x, float y, int w, int h)
 {
-    Obstacle* obstacle = new Obstacle{ x, y, width, height };
+    Obstacle* obstacle = new Obstacle{ x, y, w, h };
     obstacles.push_back(obstacle);
 }
 
@@ -118,18 +131,18 @@ bool Map::isColliding(int x, int y)
             int oY1 = (*it)->y;
             int oY2 = (*it)->y + (*it)->height;
             // check based on the four corners of the player and the obstacle
-            if ( pX1 < oX2 && pX1 > oX1 && pY1 < oY2 && pY1 > oY1 ||
-                 pX2 < oX2 && pX2 > oX1 && pY1 < oY2 && pY1 > oY1 ||
-                 pX1 < oX2 && pX1 > oX1 && pY2 < oY2 && pY2 > oY1 ||
-                 pX2 < oX2 && pX2 > oX1 && pY2 < oY2 && pY2 > oY1 )
+            if ( pX1 <= oX2 && pX1 >= oX1 && pY1 <= oY2 && pY1 >= oY1 ||
+                 pX2 <= oX2 && pX2 >= oX1 && pY1 <= oY2 && pY1 >= oY1 ||
+                 pX1 <= oX2 && pX1 >= oX1 && pY2 <= oY2 && pY2 >= oY1 ||
+                 pX2 <= oX2 && pX2 >= oX1 && pY2 <= oY2 && pY2 >= oY1 )
             {
                 return true;
             }
             // check based on the four corners of the obstacle and the player
-            if ( oX1 < pX2 && oX1 > pX1 && oY1 < pY2 && oY1 > pY1 ||
-                 oX2 < pX2 && oX2 > pX1 && oY1 < pY2 && oY1 > pY1 ||
-                 oX1 < pX2 && oX1 > pX1 && oY2 < pY2 && oY2 > pY1 ||
-                 oX2 < pX2 && oX2 > pX1 && oY2 < pY2 && oY2 > pY1 )
+            if ( oX1 <= pX2 && oX1 >= pX1 && oY1 <= pY2 && oY1 >= pY1 ||
+                 oX2 <= pX2 && oX2 >= pX1 && oY1 <= pY2 && oY1 >= pY1 ||
+                 oX1 <= pX2 && oX1 >= pX1 && oY2 <= pY2 && oY2 >= pY1 ||
+                 oX2 <= pX2 && oX2 >= pX1 && oY2 <= pY2 && oY2 >= pY1 )
             {
                 return true;
             }
