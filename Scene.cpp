@@ -30,6 +30,8 @@ Scene::Scene()
     m_map->setPlayerDataManage();
     Player* player = m_map->getPlayer();
     player->DMS->setHP(10);
+    m_map->setPlayerFlash();
+    player->flash->on = true;
 }
 
 Scene::~Scene()
@@ -44,14 +46,60 @@ Scene* Scene::create()
 
 void Scene::draw()
 {
+    Player* player = m_map->getPlayer();
+    DrawRectangle(player->x, player->y, player->width, player->height, Color{ 55, 155, 55, 255 });
+    // player flash
+
+    //              Fanned player flash(unobstructed view)
+    // if (player->flash->on)
+    // {
+    //     float px = player->flash->x;
+    //     float py = player->flash->y;
+    //     float x = 0;
+    //     float y = 0;
+    //     float angle = 0;
+    //     float distance = player->flash->distance;
+    //     for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
+    //     {
+    //         angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
+    //         float x = px + distance * cos(angle * PI / 180.0f);
+    //         float y = py + distance * sin(angle * PI / 180.0f);
+    //         RaylibTools::DrawLine(px, py, x, y, 3, Color{ 255, 255, 255, 50 });
+    //     }
+    // }
+
+    //              Fanned player flash(obstructed view)
+    if (player->flash->on)
+    {
+        float px = player->flash->x;
+        float py = player->flash->y;
+        float x = 0;
+        float y = 0;
+        float angle = 0;
+        for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
+        {
+            angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
+            for (int j = 0; j < player->flash->distance; j += 4)
+            {
+                // float distance = player->flash->distance;
+                x = px + j * cos(angle * PI / 180.0f);
+                y = py + j * sin(angle * PI / 180.0f);
+                if (m_map->isCovered(x, y))
+                {
+                    break;
+                }
+            }
+            RaylibTools::DrawLine(px, py, x, y, 3, Color{ 255, 255, 255, 50 });
+        }
+    }
+
+    //                  obstacles
     int all = m_map->numObstacles();
     for (int i = 0; i < all; i++)
     {
         Obstacle* obstacle = m_map->getObstacle(i);
         DrawRectangle(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
     }
-    Player* player = m_map->getPlayer();
-    DrawRectangle(player->x, player->y, player->width, player->height, Color{ 55, 155, 55, 255 });
 }
 
 void Scene::update(float delta)
@@ -94,5 +142,17 @@ void Scene::update(float delta)
     if (moveY && !(yIsColliding = m_map->isColliding(player->x, player->y + moveY)))
     {
         player->y += xIsColliding ? moveY * 1.4142f : moveY;
+    }
+
+    // player flash
+    Vector2 mousePos = GetMousePosition();
+    if (player->flash)
+    {
+        player->flash->x = player->x + player->width / 2;
+        player->flash->y = player->y + player->height / 2;
+        if (mousePos.x && mousePos.y && !(mousePos.x == player->flash->x && mousePos.y == player->flash->y))
+        {
+            player->flash->angle = atan2(mousePos.y - player->flash->y, mousePos.x - player->flash->x) * 180.0f / PI;
+        }
     }
 }

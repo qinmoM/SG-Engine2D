@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Map.h"
+#include "RaylibTools.h"
 #include <raylib.h>
 #include <iostream>
 #include <ctime>
+#include <cmath>
 
 class Scene
 {

@@ -50,6 +50,14 @@ void Map::setPlayerDataManage()
     }
 }
 
+void Map::setPlayerFlash()
+{
+    if (player->flash == nullptr)
+    {
+        player->flash = new Flash();
+    }
+}
+
 Player* Map::getPlayer()
 {
     return player;
@@ -61,6 +69,8 @@ void Map::clearPlayer()
     {
         delete player->DMS;
         player->DMS = nullptr;
+        delete player->flash;
+        player->flash = nullptr;
     }
     delete player;
     player = nullptr;
@@ -146,6 +156,22 @@ bool Map::isColliding(int x, int y)
             {
                 return true;
             }
+        }
+    }
+    return false;
+}
+
+bool Map::isCovered(int x, int y)
+{
+    for (std::vector<Obstacle*>::iterator it = obstacles.begin(); it != obstacles.end(); ++it)
+    {
+        int oX1 = (*it)->x;
+        int oX2 = (*it)->x + (*it)->width;
+        int oY1 = (*it)->y;
+        int oY2 = (*it)->y + (*it)->height;
+        if (x >= oX1 && x <= oX2 && y >= oY1 && y <= oY2)
+        {
+            return true;
         }
     }
     return false;
