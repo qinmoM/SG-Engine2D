@@ -7,6 +7,7 @@
 struct Flash
 {
     bool on = false;                    // whether the flashlight is on or off
+    bool isObstructed = false;          // light pass through the obstacle or not
     bool precision = false;             // whether the flashlight is in precision mode or not
     float x;                            // x coordinate of the flashlight
     float y;                            // y coordinate of the flashlight
@@ -51,6 +52,7 @@ public:
     void setPlayerSpeed(float speed);                           // set the speed of the player in the map
     void setPlayerDataManage();                                 // set the dataManage of the player
     void setPlayerFlash();                                      // set the flashlight of the player in the map
+    void setPlayerFlashOn(bool turn);                           // set the flashlight is on or off
     void setPlayerFlashView(float View, float angle = 0.0f);    // set the view range and the angle orientation
     void setPlayerFlashDist(float dist, float vici = 10.0f);    // set the view distance and vicinity
     void setPlayerFlashPrecision(bool turn);                    // set the precision is on or off

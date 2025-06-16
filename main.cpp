@@ -13,6 +13,7 @@ int main()
     // Init Audio device
     InitAudioDevice();
     // init data
+
     //Scene* scene = Scene::create();
     std::unique_ptr<Scene> scene(Scene::create());
 

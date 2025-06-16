@@ -58,6 +58,14 @@ void Map::setPlayerFlash()
     }
 }
 
+void Map::setPlayerFlashOn(bool turn)
+{
+    if (player && player->flash)
+    {
+        player->flash->on = turn;
+    }
+}
+
 void Map::setPlayerFlashDist(float dist, float vici)
 {
     if (player && player->flash)

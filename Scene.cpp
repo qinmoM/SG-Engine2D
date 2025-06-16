@@ -31,7 +31,7 @@ Scene::Scene()
     Player* player = m_map->getPlayer();
     player->DMS->setHP(10);
     m_map->setPlayerFlash();
-    player->flash->on = true;
+    m_map->setPlayerFlashOn(true);
 }
 
 Scene::~Scene()
@@ -50,65 +50,73 @@ void Scene::draw()
     DrawRectangle(player->x, player->y, player->width, player->height, Color{ 55, 155, 55, 255 });
     // player flash
 
-    //              Fanned player flash(unobstructed view)
-    // if (player->flash->on)
-    // {
-    //     float px = player->flash->x;
-    //     float py = player->flash->y;
-    //     float x = 0;
-    //     float y = 0;
-    //     float angle = 0;
-    //     float distance = player->flash->distance;
-    //     for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
-    //     {
-    //         angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
-    //         float x = px + distance * cos(angle * PI / 180.0f);
-    //         float y = py + distance * sin(angle * PI / 180.0f);
-    //         RaylibTools::DrawLine(px, py, x, y, 3, Color{ 255, 255, 255, 50 });
-    //     }
-    // }
-
-    //              Fanned player flash(obstructed view)
-    if (player->flash->on)
+    if (player->flash->isObstructed)
     {
-        float px = player->flash->x;
-        float py = player->flash->y;
-        float x = 0;
-        float y = 0;
-        float angle = 0;
-        int precision = player->flash->precision ? 1 : 4;
-        float vicinity = player->flash->vicinity;
-        for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
+        //              Fanned player flash(unobstructed view)
+        if (player->flash->on)
         {
-            angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
-            float xNear = px + vicinity * cos(angle * PI / 180.0f);
-            float yNear = py + vicinity * sin(angle * PI / 180.0f);
-            int temp = 0;
-            bool isDraw = false;
-            for (; temp < player->flash->distance; temp += precision)
+            float px = player->flash->x;
+            float py = player->flash->y;
+            float x = 0;
+            float y = 0;
+            float angle = 0;
+            float distance = player->flash->distance;
+            float vicinity = player->flash->vicinity;
+            for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
             {
-                x = px + temp * cos(angle * PI / 180.0f);
-                y = py + temp * sin(angle * PI / 180.0f);
-                if (m_map->isCovered(x, y))
-                {
-                    break;
-                }
-            }
-            isDraw = temp > vicinity ? true : false;
-            if (isDraw)
-            {
+                angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
+                float xNear = px + vicinity * cos(angle * PI / 180.0f);
+                float yNear = py + vicinity * sin(angle * PI / 180.0f);
+                float x = px + distance * cos(angle * PI / 180.0f);
+                float y = py + distance * sin(angle * PI / 180.0f);
                 RaylibTools::DrawLine(xNear, yNear, x, y, 3, Color{ 255, 255, 255, 50 });
+            }
+        }
+    }
+    else
+    {
+        //              Fanned player flash(obstructed view)
+        if (player->flash->on)
+        {
+            float px = player->flash->x;
+            float py = player->flash->y;
+            float x = 0;
+            float y = 0;
+            float angle = 0;
+            int precision = player->flash->precision ? 1 : 4;
+            float vicinity = player->flash->vicinity;
+            for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
+            {
+                angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
+                float xNear = px + vicinity * cos(angle * PI / 180.0f);
+                float yNear = py + vicinity * sin(angle * PI / 180.0f);
+                int temp = 0;
+                bool isDraw = false;
+                for (; temp < player->flash->distance; temp += precision)
+                {
+                    x = px + temp * cos(angle * PI / 180.0f);
+                    y = py + temp * sin(angle * PI / 180.0f);
+                    if (m_map->isCovered(x, y))
+                    {
+                        break;
+                    }
+                }
+                isDraw = temp > vicinity ? true : false;
+                if (isDraw)
+                {
+                    RaylibTools::DrawLine(xNear, yNear, x, y, 3, Color{ 255, 255, 255, 50 });
+                }
             }
         }
     }
 
     //                  obstacles
-    // int all = m_map->numObstacles();
-    // for (int i = 0; i < all; i++)
-    // {
-    //     Obstacle* obstacle = m_map->getObstacle(i);
-    //     DrawRectangle(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
-    // }
+    int all = m_map->numObstacles();
+    for (int i = 0; i < all; i++)
+    {
+        Obstacle* obstacle = m_map->getObstacle(i);
+        DrawRectangle(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
+    }
 }
 
 void Scene::update(float delta)
