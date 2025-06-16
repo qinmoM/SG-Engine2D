@@ -16,6 +16,7 @@ int main()
 
     //Scene* scene = Scene::create();
     std::unique_ptr<Scene> scene(Scene::create());
+    scene->isPlayerCenter(true);
 
     float timeLast = 0.0f;
     // Set the target FPS

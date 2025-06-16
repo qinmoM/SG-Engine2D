@@ -13,9 +13,13 @@ private:
     Scene();
 protected:
     Map* m_map;
+    bool isCentered = false;
+    float offsetX;
+    float offsetY;
 public:
     ~Scene();
     static Scene* create();
+    void isPlayerCenter(bool is);
     void draw();
     void update(float delta);
 };

@@ -32,6 +32,8 @@ Scene::Scene()
     player->DMS->setHP(10);
     m_map->setPlayerFlash();
     m_map->setPlayerFlashOn(true);
+    // camera
+    isCentered = false;
 }
 
 Scene::~Scene()
@@ -44,12 +46,24 @@ Scene* Scene::create()
     return new Scene();
 }
 
+void Scene::isPlayerCenter(bool is)
+{
+    isCentered = is;
+    Player* player = m_map->getPlayer();
+    if (is)
+    {
+        offsetX = GetScreenWidth() / 2 - player->x - player->width / 2;
+        offsetY = GetScreenHeight() / 2 - player->y - player->height / 2;
+    }
+}
+
 void Scene::draw()
 {
     Player* player = m_map->getPlayer();
-    DrawRectangle(player->x, player->y, player->width, player->height, Color{ 55, 155, 55, 255 });
-    // player flash
+    DrawRectangle(player->x + offsetX, player->y + offsetY, player->width,
+        player->height, Color{ 55, 155, 55, 255 });
 
+    // player flash
     if (player->flash->isObstructed)
     {
         //              Fanned player flash(unobstructed view)
@@ -69,7 +83,8 @@ void Scene::draw()
                 float yNear = py + vicinity * sin(angle * PI / 180.0f);
                 float x = px + distance * cos(angle * PI / 180.0f);
                 float y = py + distance * sin(angle * PI / 180.0f);
-                RaylibTools::DrawLine(xNear, yNear, x, y, 3, Color{ 255, 255, 255, 50 });
+                RaylibTools::DrawLine(xNear + offsetX, yNear + offsetY, x + offsetX,
+                    y + offsetY, 3, Color{ 255, 255, 255, 50 });
             }
         }
     }
@@ -104,7 +119,8 @@ void Scene::draw()
                 isDraw = temp > vicinity ? true : false;
                 if (isDraw)
                 {
-                    RaylibTools::DrawLine(xNear, yNear, x, y, 3, Color{ 255, 255, 255, 50 });
+                    RaylibTools::DrawLine(xNear + offsetX, yNear + offsetY, x + offsetX,
+                        y + offsetY, 3, Color{ 255, 255, 255, 50 });
                 }
             }
         }
@@ -115,7 +131,8 @@ void Scene::draw()
     for (int i = 0; i < all; i++)
     {
         Obstacle* obstacle = m_map->getObstacle(i);
-        DrawRectangle(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
+        DrawRectangle(obstacle->x + offsetX, obstacle->y + offsetY,
+            obstacle->width, obstacle->height, BLACK);
     }
 }
 
@@ -167,9 +184,28 @@ void Scene::update(float delta)
     {
         player->flash->x = player->x + player->width / 2;
         player->flash->y = player->y + player->height / 2;
-        if (mousePos.x && mousePos.y && !(mousePos.x == player->flash->x && mousePos.y == player->flash->y))
+        if (isCentered)
         {
-            player->flash->angle = atan2(mousePos.y - player->flash->y, mousePos.x - player->flash->x) * 180.0f / PI;
+            if (mousePos.x && mousePos.y && !(mousePos.x == player->x && mousePos.y == player->y))
+            {
+                player->flash->angle = atan2(mousePos.y - GetScreenHeight() / 2,
+                    mousePos.x - GetScreenWidth() / 2) * 180.0f / PI;
+            }
         }
+        else
+        {
+            if (mousePos.x && mousePos.y && !(mousePos.x == player->flash->x && mousePos.y == player->flash->y))
+            {
+                player->flash->angle = atan2(mousePos.y - player->flash->y,
+                    mousePos.x - player->flash->x) * 180.0f / PI;
+            }
+        }
+    }
+
+    // camera
+    if (isCentered)
+    {
+        offsetX = GetScreenWidth() / 2 - player->x - player->width / 2;
+        offsetY = GetScreenHeight() / 2 - player->y - player->height / 2;
     }
 }
