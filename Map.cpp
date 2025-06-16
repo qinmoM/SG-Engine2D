@@ -44,7 +44,7 @@ void Map::setPlayerSpeed(float speed)
 
 void Map::setPlayerDataManage()
 {
-    if (player->DMS == nullptr)
+    if (player && !player->DMS)
     {
         player->DMS = DataManage::create();
     }
@@ -52,9 +52,26 @@ void Map::setPlayerDataManage()
 
 void Map::setPlayerFlash()
 {
-    if (player->flash == nullptr)
+    if (player && !player->flash)
     {
         player->flash = new Flash();
+    }
+}
+
+void Map::setPlayerFlashDist(float dist, float vici)
+{
+    if (player && player->flash)
+    {
+        player->flash->distance = dist;
+        player->flash->vicinity = vici;
+    }
+}
+
+void Map::setPlayerFlashPrecision(bool turn)
+{
+    if (player && player->flash)
+    {
+        player->flash->precision = turn;
     }
 }
 
@@ -65,7 +82,7 @@ Player* Map::getPlayer()
 
 void Map::clearPlayer()
 {
-    if (player->DMS)
+    if (player && player->DMS)
     {
         delete player->DMS;
         player->DMS = nullptr;

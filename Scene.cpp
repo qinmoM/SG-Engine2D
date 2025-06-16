@@ -76,30 +76,39 @@ void Scene::draw()
         float x = 0;
         float y = 0;
         float angle = 0;
+        int precision = player->flash->precision ? 1 : 4;
+        float vicinity = player->flash->vicinity;
         for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
         {
             angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
-            for (int j = 0; j < player->flash->distance; j += 4)
+            float xNear = px + vicinity * cos(angle * PI / 180.0f);
+            float yNear = py + vicinity * sin(angle * PI / 180.0f);
+            int temp = 0;
+            bool isDraw = false;
+            for (; temp < player->flash->distance; temp += precision)
             {
-                // float distance = player->flash->distance;
-                x = px + j * cos(angle * PI / 180.0f);
-                y = py + j * sin(angle * PI / 180.0f);
+                x = px + temp * cos(angle * PI / 180.0f);
+                y = py + temp * sin(angle * PI / 180.0f);
                 if (m_map->isCovered(x, y))
                 {
                     break;
                 }
             }
-            RaylibTools::DrawLine(px, py, x, y, 3, Color{ 255, 255, 255, 50 });
+            isDraw = temp > vicinity ? true : false;
+            if (isDraw)
+            {
+                RaylibTools::DrawLine(xNear, yNear, x, y, 3, Color{ 255, 255, 255, 50 });
+            }
         }
     }
 
     //                  obstacles
-    int all = m_map->numObstacles();
-    for (int i = 0; i < all; i++)
-    {
-        Obstacle* obstacle = m_map->getObstacle(i);
-        DrawRectangle(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
-    }
+    // int all = m_map->numObstacles();
+    // for (int i = 0; i < all; i++)
+    // {
+    //     Obstacle* obstacle = m_map->getObstacle(i);
+    //     DrawRectangle(obstacle->x, obstacle->y, obstacle->width, obstacle->height, BLACK);
+    // }
 }
 
 void Scene::update(float delta)
