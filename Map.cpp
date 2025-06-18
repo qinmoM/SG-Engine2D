@@ -66,6 +66,15 @@ void Map::setPlayerFlashOn(bool turn)
     }
 }
 
+// void Map::setPlayerFlashView(float view, float angle = 0.0f)
+// {
+//     if (player && player->flash)
+//     {
+//         player->flash->angleOfView = view;
+//         player->flash->angle = angle;
+//     }
+// }
+
 void Map::setPlayerFlashDist(float dist, float vici)
 {
     if (player && player->flash)
@@ -80,6 +89,16 @@ void Map::setPlayerFlashPrecision(bool turn)
     if (player && player->flash)
     {
         player->flash->precision = turn;
+    }
+}
+
+void Map::setPlayerPixelImage(int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height)
+{
+    if (player)
+    {
+        player->pixelImage = new PixelImage{ size, pixels, width, height };
+        player->width = width * size;
+        player->height = height * size;
     }
 }
 

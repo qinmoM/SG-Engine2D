@@ -1,7 +1,17 @@
 #pragma once
 
 #include <vector>
+#include <cstdint>
 #include "DataManage.h"
+
+// a simple pixel image struct
+struct PixelImage
+{
+    int size;
+    std::vector<std::vector<std::vector<uint8_t>>> pixels;
+    int width;
+    int height;
+};
 
 // flashlight class// different graphics libraries need to correspond program
 struct Flash
@@ -27,6 +37,7 @@ struct Player
     float speed = 0.0f;                 // speed of the player
     Flash* flash = nullptr;             // pointer to the flashlight object
     DataManage* DMS = nullptr;          // pointer to the data manage object
+    PixelImage* pixelImage = nullptr;   // pointer to the pixel image object
 };
 
 // obstacle class
@@ -53,9 +64,11 @@ public:
     void setPlayerDataManage();                                 // set the dataManage of the player
     void setPlayerFlash();                                      // set the flashlight of the player in the map
     void setPlayerFlashOn(bool turn);                           // set the flashlight is on or off
-    void setPlayerFlashView(float View, float angle = 0.0f);    // set the view range and the angle orientation
+    //void setPlayerFlashView(float view, float angle = 0.0f);    // set the view range and the angle orientation
     void setPlayerFlashDist(float dist, float vici = 10.0f);    // set the view distance and vicinity
     void setPlayerFlashPrecision(bool turn);                    // set the precision is on or off
+    void setPlayerPixelImage(int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height);
+                                                                // set the pixel image of the player
     Player* getPlayer();                                        // get the player in the map
     void clearPlayer();                                         // remove the player from the map
     void movePlayer(int dx, int dy);                            // move the player by dx and dy

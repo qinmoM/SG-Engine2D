@@ -3,6 +3,10 @@
 Scene::Scene()
 {
     m_map = new Map;
+    // color palette
+    initColorPalette();
+    RaylibPixelModel* temp = RaylibPixelModel::create();
+    temp->setTest();
     // obstacles
     m_map->addObstacle(115, 115, 770, 20);
     m_map->addObstacle(115, 135, 20, 750);
@@ -32,6 +36,7 @@ Scene::Scene()
     player->DMS->setHP(10);
     m_map->setPlayerFlash();
     m_map->setPlayerFlashOn(true);
+    m_map->setPlayerPixelImage(5, temp->PixelImage, temp->width, temp->height);
     // camera
     isCentered = false;
 }
@@ -39,6 +44,55 @@ Scene::Scene()
 Scene::~Scene()
 {
     delete m_map;
+}
+
+void Scene::initColorPalette()
+{
+    int index = 0;
+
+    // opaques
+    for (int r = 0; r < 5; r += 1)
+    {
+        for (int g = 0; g < 5; g += 1)
+        {
+            for (int b = 0; b < 5; b += 1)
+            {
+                colorPalette.push_back(Color {
+                    static_cast<unsigned char>(r * 64 > 255 ? 255 : r * 64),
+                    static_cast<unsigned char>(g * 64 > 255 ? 255 : g * 64),
+                    static_cast<unsigned char>(b * 64 > 255 ? 255 : b * 64),
+                    255
+                });
+                index++;
+            }
+        }
+    }
+
+    // transparents
+    for (int r = 0; r < 5; r += 1)
+    {
+        for (int g = 0; g < 5; g += 1)
+        {
+            for (int b = 0; b < 5; b += 1)
+            {
+                colorPalette.push_back(Color{
+                    static_cast<unsigned char>(r * 64 > 255 ? 255 : r * 64),
+                    static_cast<unsigned char>(g * 64 > 255 ? 255 : g * 64),
+                    static_cast<unsigned char>(b * 64 > 255 ? 255 : b * 64),
+                    128
+                });
+                index++;
+            }
+        }
+    }
+
+    // default colors
+    colorPalette.push_back(Color{0, 0, 0, 0});         // 完全透明
+    colorPalette.push_back(Color{255, 0, 0, 255});     // 撞击红
+    colorPalette.push_back(Color{0, 255, 255, 255});   // 青
+    colorPalette.push_back(Color{255, 0, 255, 255});   // 紫
+    colorPalette.push_back(Color{0, 255, 0, 255});     // 绿
+    colorPalette.push_back(Color{255, 255, 0, 255});   // 黄
 }
 
 Scene* Scene::create()
@@ -60,8 +114,6 @@ void Scene::isPlayerCenter(bool is)
 void Scene::draw()
 {
     Player* player = m_map->getPlayer();
-    DrawRectangle(player->x + offsetX, player->y + offsetY, player->width,
-        player->height, Color{ 55, 155, 55, 255 });
 
     // player flash
     if (player->flash->isObstructed)
@@ -133,6 +185,35 @@ void Scene::draw()
         Obstacle* obstacle = m_map->getObstacle(i);
         DrawRectangle(obstacle->x + offsetX, obstacle->y + offsetY,
             obstacle->width, obstacle->height, BLACK);
+    }
+
+    //                  player
+    if (!player->pixelImage)
+    {
+        DrawRectangle(player->x + offsetX, player->y + offsetY, player->width,
+        player->height, Color{ 55, 155, 55, 255 });
+    }
+    else
+    {
+        drawPixelImage(player->pixelImage, player->x + offsetX, player->y + offsetY);
+    }
+}
+
+void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y)
+{
+    Color color;
+    int size = pixelImage->size;
+    for (int i = 0; i < pixelImage->height; i++)
+    {
+        for (int j = 0; j < pixelImage->width; j++)
+        {
+            uint8_t temp = pixelImage->pixels[0][i][j];
+            if (250 != temp)
+            {
+                color = colorPalette[temp];
+                DrawRectangle(x + j * size, y + i * size, size, size, color);
+            }
+        }
     }
 }
 

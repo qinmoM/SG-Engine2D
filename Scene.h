@@ -2,6 +2,7 @@
 
 #include "Map.h"
 #include "RaylibTools.h"
+#include "RaylibPixelModel.h"
 #include <raylib.h>
 #include <iostream>
 #include <ctime>
@@ -16,10 +17,13 @@ protected:
     bool isCentered = false;
     float offsetX;
     float offsetY;
+    std::vector<Color> colorPalette;
+    void initColorPalette();
 public:
     ~Scene();
     static Scene* create();
     void isPlayerCenter(bool is);
     void draw();
+    void drawPixelImage(PixelImage* pixelImage, int x, int y);
     void update(float delta);
 };
