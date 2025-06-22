@@ -115,6 +115,8 @@ void Map::clearPlayer()
         player->DMS = nullptr;
         delete player->flash;
         player->flash = nullptr;
+        delete player->pixelImage;
+        player->pixelImage = nullptr;
     }
     delete player;
     player = nullptr;

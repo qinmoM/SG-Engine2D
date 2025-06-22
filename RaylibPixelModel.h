@@ -13,4 +13,5 @@ public:
     ~RaylibPixelModel();
     static RaylibPixelModel* create();
     void setTest();
+    void setFuFu();
 };

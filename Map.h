@@ -32,8 +32,8 @@ struct Player
 {
     float x;                            // x coordinate of the player
     float y;                            // y coordinate of the player
-    int width;                          // width of the player
-    int height;                         // height of the player
+    int width;                          // width on the interface
+    int height;                         // height on the interface
     float speed = 0.0f;                 // speed of the player
     Flash* flash = nullptr;             // pointer to the flashlight object
     DataManage* DMS = nullptr;          // pointer to the data manage object

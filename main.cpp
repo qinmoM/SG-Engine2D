@@ -26,7 +26,7 @@ int main()
     {
         BeginDrawing();
         // Update
-        ClearBackground(BLUE);
+        ClearBackground(BLACK);
         scene->draw();
         scene->update((clock() - timeLast) / (float)CLOCKS_PER_SEC);
         timeLast = clock();
