@@ -13,10 +13,8 @@ int main()
     // Init Audio device
     InitAudioDevice();
     // init data
-
     //Scene* scene = Scene::create();
     std::unique_ptr<Scene> scene(Scene::create());
-    scene->isPlayerCenter(true);
 
     float timeLast = 0.0f;
     // Set the target FPS
@@ -27,8 +25,8 @@ int main()
         BeginDrawing();
         // Update
         ClearBackground(BLACK);
-        scene->draw();
         scene->update((clock() - timeLast) / (float)CLOCKS_PER_SEC);
+        scene->draw();
         timeLast = clock();
         
         EndDrawing();

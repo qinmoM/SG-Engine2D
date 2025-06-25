@@ -3,42 +3,7 @@
 Scene::Scene()
 {
     m_map = new Map;
-    // color palette
-    initColorPalette();
-    RaylibPixelModel* temp = RaylibPixelModel::create();
-    temp->setFuFu();
-    // obstacles
-    m_map->addObstacle(115, 115, 770, 20);
-    m_map->addObstacle(115, 135, 20, 750);
-    m_map->addObstacle(135, 865, 750, 20);
-    m_map->addObstacle(865, 135, 20, 125);
-    m_map->addObstacle(865, 365, 20, 500);
-    m_map->addObstacle(135, 740, 375, 20);
-    m_map->addObstacle(135, 615, 250, 20);
-    m_map->addObstacle(240, 365, 20, 250);
-    m_map->addObstacle(240, 240, 145, 20);
-    m_map->addObstacle(365, 260, 20, 250);
-    m_map->addObstacle(385, 490, 125, 20);
-    m_map->addObstacle(490, 510, 20, 230);
-    m_map->addObstacle(490, 135, 20, 250);
-    m_map->addObstacle(510, 365, 125, 20);
-    m_map->addObstacle(615, 240, 20, 125);
-    m_map->addObstacle(615, 510, 20, 250);
-    m_map->addObstacle(615, 490, 125, 20);
-    m_map->addObstacle(740, 260, 20, 250);
-    m_map->addObstacle(740, 240, 125, 20);
-    m_map->addObstacle(740, 615, 20, 250);
-    // player
-    m_map->setPlayer(176, 650, 20, 20);
-    m_map->setPlayerSpeed(140);
-    m_map->setPlayerDataManage();
-    Player* player = m_map->getPlayer();
-    player->DMS->setHP(10);
-    m_map->setPlayerFlash();
-    m_map->setPlayerFlashOn(true);
-    m_map->setPlayerPixelImage(1, temp->PixelImage, temp->width, temp->height);
-    // camera
-    isCentered = false;
+    init1();
 }
 
 Scene::~Scene()
@@ -289,4 +254,58 @@ void Scene::update(float delta)
         offsetX = GetScreenWidth() / 2 - player->x - player->width / 2;
         offsetY = GetScreenHeight() / 2 - player->y - player->height / 2;
     }
+}
+
+void Scene::init1()
+{
+    // obstacles
+    initMap1();
+    // player
+    initPlayer1();
+    // camera
+    isCentered = true;
+}
+
+void Scene::initMap1()
+{
+    // obstacles
+    m_map->addObstacle(115, 115, 770, 20);
+    m_map->addObstacle(115, 135, 20, 750);
+    m_map->addObstacle(135, 865, 750, 20);
+    m_map->addObstacle(865, 135, 20, 125);
+    m_map->addObstacle(865, 365, 20, 500);
+    m_map->addObstacle(135, 740, 375, 20);
+    m_map->addObstacle(135, 615, 250, 20);
+    m_map->addObstacle(240, 365, 20, 250);
+    m_map->addObstacle(240, 240, 145, 20);
+    m_map->addObstacle(365, 260, 20, 250);
+    m_map->addObstacle(385, 490, 125, 20);
+    m_map->addObstacle(490, 510, 20, 230);
+    m_map->addObstacle(490, 135, 20, 250);
+    m_map->addObstacle(510, 365, 125, 20);
+    m_map->addObstacle(615, 240, 20, 125);
+    m_map->addObstacle(615, 510, 20, 250);
+    m_map->addObstacle(615, 490, 125, 20);
+    m_map->addObstacle(740, 260, 20, 250);
+    m_map->addObstacle(740, 240, 125, 20);
+    m_map->addObstacle(740, 615, 20, 250);
+}
+
+void Scene::initPlayer1()
+{
+    // color palette
+    initColorPalette();
+    std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
+    //RaylibPixelModel* temp = RaylibPixelModel::create();
+    temp->setFuFu();
+
+    // player
+    m_map->setPlayer(176, 650, 20, 20);
+    m_map->setPlayerSpeed(140);
+    m_map->setPlayerDataManage();
+    Player* player = m_map->getPlayer();
+    player->DMS->setHP(10);
+    m_map->setPlayerFlash();
+    m_map->setPlayerFlashOn(true);
+    m_map->setPlayerPixelImage(1, temp->PixelImage, temp->width, temp->height);
 }

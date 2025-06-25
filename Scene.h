@@ -7,6 +7,7 @@
 #include <iostream>
 #include <ctime>
 #include <cmath>
+#include <memory>
 
 class Scene
 {
@@ -26,4 +27,9 @@ public:
     void draw();
     void drawPixelImage(PixelImage* pixelImage, int x, int y);
     void update(float delta);
+
+    void init1();
+
+    void initMap1();
+    void initPlayer1();
 };

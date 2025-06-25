@@ -66,14 +66,14 @@ void Map::setPlayerFlashOn(bool turn)
     }
 }
 
-// void Map::setPlayerFlashView(float view, float angle = 0.0f)
-// {
-//     if (player && player->flash)
-//     {
-//         player->flash->angleOfView = view;
-//         player->flash->angle = angle;
-//     }
-// }
+void Map::setPlayerFlashView(float view, float angle)
+{
+    if (player && player->flash)
+    {
+        player->flash->angleOfView = view;
+        player->flash->angle = angle;
+    }
+}
 
 void Map::setPlayerFlashDist(float dist, float vici)
 {
@@ -109,7 +109,7 @@ Player* Map::getPlayer()
 
 void Map::clearPlayer()
 {
-    if (player && player->DMS)
+    if (player)
     {
         delete player->DMS;
         player->DMS = nullptr;

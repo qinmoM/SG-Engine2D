@@ -2,9 +2,10 @@
 
 #include <vector>
 #include <cstdint>
+#include <memory>
 #include "DataManage.h"
 
-// a simple pixel image struct
+// a simple pixel image struct// different graphics libraries need to correspond program
 struct PixelImage
 {
     int size;
@@ -25,6 +26,16 @@ struct Flash
     float angleOfView = 70.0f;          // angle of view of the flashlight
     float vicinity = 10.0f;             // intensity of the flashlight
     float distance = 400.0f;            // distance of the flashlight
+};
+
+// Fallen object class
+struct Object
+{
+    float x;                            // x coordinate of the object
+    float y;                            // x coordinate of the object
+    int width;                          // width of the object
+    int height;                         // height of the object
+    PixelImage* pixelImage = nullptr;   // pointer to the pixel image object
 };
 
 // player class
@@ -64,7 +75,7 @@ public:
     void setPlayerDataManage();                                 // set the dataManage of the player
     void setPlayerFlash();                                      // set the flashlight of the player in the map
     void setPlayerFlashOn(bool turn);                           // set the flashlight is on or off
-    //void setPlayerFlashView(float view, float angle = 0.0f);    // set the view range and the angle orientation
+    void setPlayerFlashView(float view, float angle = 0.0f);    // set the view range and the angle orientation
     void setPlayerFlashDist(float dist, float vici = 10.0f);    // set the view distance and vicinity
     void setPlayerFlashPrecision(bool turn);                    // set the precision is on or off
     void setPlayerPixelImage(int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height);
