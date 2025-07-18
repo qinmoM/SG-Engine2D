@@ -1,5 +1,7 @@
 #include "Map.h"
 
+//              Map related functions
+
 Map::Map()
 {
     player = nullptr;
@@ -16,6 +18,8 @@ Map::~Map()
         clearObstacles();
     }
 }
+
+//              Player related functions
 
 void Map::setPlayer(const Player& player)
 {
@@ -104,6 +108,10 @@ void Map::setPlayerPixelImage(int size, std::vector<std::vector<std::vector<uint
 
 Player* Map::getPlayer()
 {
+    if (!player)
+    {
+        return nullptr;
+    }
     return player;
 }
 
@@ -122,10 +130,7 @@ void Map::clearPlayer()
     player = nullptr;
 }
 
-void Map::addObstacle(Obstacle obstacle)
-{
-    obstacles.push_back(&obstacle);
-}
+//              Obstacle related functions
 
 void Map::addObstacle(float x, float y, int w, int h)
 {
@@ -135,7 +140,13 @@ void Map::addObstacle(float x, float y, int w, int h)
 
 void Map::removeObstacle(size_t index)
 {
-    obstacles.erase(obstacles.begin() + index * sizeof(Obstacle*));
+    if (index < 0 || index >= obstacles.size())
+    {
+        return;
+    }
+    std::vector<Obstacle*>::iterator it = obstacles.begin() + index;
+    delete *it;
+    obstacles.erase(it);
 }
 
 void Map::clearObstacles()
@@ -172,7 +183,54 @@ void Map::moveObstacle(size_t index, int x, int y)
     obstacle->y = y;
 }
 
-bool Map::isColliding(int x, int y)
+//              Object related functions
+
+void Map::addObject(float x, float y, int w, int h)
+{
+    objects.push_back(std::make_shared<Object>(x, y, w, h));
+}
+
+void Map::removeObject(size_t index)
+{
+    if (index < 0 || index >= objects.size())
+    {
+        return;
+    }
+    objects.erase(objects.begin() + index);
+}
+
+void Map::clearObjects()
+{
+    objects.clear();
+}
+
+int Map::numObjects()
+{
+    return objects.size();
+}
+
+std::shared_ptr<Object> Map::getObject(size_t index)
+{
+    if (index < 0 || index >= objects.size())
+    {
+        return nullptr;
+    }
+    return objects[index];
+}
+
+void Map::moveObject(size_t index, int x, int y)
+{
+    if (index < 0 || index >= objects.size())
+    {
+        return;
+    }
+    objects[index]->x = x;
+    objects[index]->y = y;
+}
+
+//              Collision related functions
+
+bool Map::isCollidingObstacles(int x, int y)
 {
     int pX1 = x;
     int pX2 = x + player->width;
@@ -207,7 +265,7 @@ bool Map::isColliding(int x, int y)
     return false;
 }
 
-bool Map::isCovered(int x, int y)
+bool Map::isCoveredObstacles(int x, int y)
 {
     for (std::vector<Obstacle*>::iterator it = obstacles.begin(); it != obstacles.end(); ++it)
     {
@@ -219,6 +277,44 @@ bool Map::isCovered(int x, int y)
         {
             return true;
         }
+    }
+    return false;
+}
+
+bool Map::isCollidingObject(int index)
+{
+    if (index < 0 || index >= objects.size() || !player)
+    {
+        return false;
+    }
+    
+    if (isColliding(objects[index]->x, objects[index]->y, objects[index]->width, objects[index]->height,
+        player->x, player->y, player->width, player->height))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool Map::isColliding(float x, float y, int w, int h, float dx, float dy, int dw, int dh)
+{
+    if (x >= dx && x <= dx + dw && y >= dy && y <= dy + dh                  ||
+        x >= dx && x <= dx + dw && y + h >= dy && y + h <= dy + dh          ||
+        x + w >= dx && x + w <= dx + dw && y >= dy && y <= dy + dh          ||
+        x + w >= dx && x + w <= dx + dw && y + h >= dy && y + h <= dy + dh  )
+    {
+        return true;
+    }
+    return false;
+}
+
+bool Map::isCovered(float x, float y, int w, int h, float dx, float dy)
+{
+    int tX1 = dx - x;
+    int tX2 = dx - y;
+    if (tX1 >= 0 && tX1 <= w && tX2 >= 0 && tX2 <= h)
+    {
+        return true;
     }
     return false;
 }

@@ -16,6 +16,7 @@ int main()
     //Scene* scene = Scene::create();
     std::unique_ptr<Scene> scene(Scene::create());
 
+    float timeCurrent = 0.0f;
     float timeLast = 0.0f;
     // Set the target FPS
     SetTargetFPS(60);
@@ -24,10 +25,11 @@ int main()
     {
         BeginDrawing();
         // Update
-        ClearBackground(BLACK);
-        scene->update((clock() - timeLast) / (float)CLOCKS_PER_SEC);
+        ClearBackground(Color{ 50, 50, 50, 255 });
+        timeCurrent = clock() / 1000.0f;
+        scene->update(timeCurrent - timeLast);
+        timeLast = timeCurrent;
         scene->draw();
-        timeLast = clock();
         
         EndDrawing();
     }

@@ -128,7 +128,7 @@ void Scene::draw()
                 {
                     x = px + temp * cos(angle * PI / 180.0f);
                     y = py + temp * sin(angle * PI / 180.0f);
-                    if (m_map->isCovered(x, y))
+                    if (m_map->isCoveredObstacles(x, y))
                     {
                         break;
                     }
@@ -149,14 +149,23 @@ void Scene::draw()
     {
         Obstacle* obstacle = m_map->getObstacle(i);
         DrawRectangle(obstacle->x + offsetX, obstacle->y + offsetY,
-            obstacle->width, obstacle->height, BLACK);
+            obstacle->width, obstacle->height, Color{ 100, 100, 100, 255 });
+    }
+
+    //                  objects
+    int allObjects = m_map->numObjects();
+    for (int i = 0; i < allObjects; i++)
+    {
+        std::shared_ptr<Object> object = m_map->getObject(i);
+        DrawRectangle(object->x + offsetX, object->y + offsetY,
+            object->width, object->height, Color{ 255, 255, 255, 255 });
     }
 
     //                  player
     if (!player->pixelImage)
     {
         DrawRectangle(player->x + offsetX, player->y + offsetY, player->width,
-        player->height, Color{ 55, 155, 55, 255 });
+            player->height, Color{ 55, 155, 55, 255 });
     }
     else
     {
@@ -215,11 +224,11 @@ void Scene::update(float delta)
     // update player position
     bool xIsColliding = false;
     bool yIsColliding = false;
-    if (moveX && !(xIsColliding = m_map->isColliding(player->x + moveX, player->y)))
+    if (moveX && !(xIsColliding = m_map->isCollidingObstacles(player->x + moveX, player->y)))
     {
         player->x += yIsColliding ? moveX * 1.4142f : moveX;
     }
-    if (moveY && !(yIsColliding = m_map->isColliding(player->x, player->y + moveY)))
+    if (moveY && !(yIsColliding = m_map->isCollidingObstacles(player->x, player->y + moveY)))
     {
         player->y += xIsColliding ? moveY * 1.4142f : moveY;
     }
@@ -254,6 +263,16 @@ void Scene::update(float delta)
         offsetX = GetScreenWidth() / 2 - player->x - player->width / 2;
         offsetY = GetScreenHeight() / 2 - player->y - player->height / 2;
     }
+
+    // objects
+    int allObjects = m_map->numObjects();
+    for (int i = 0; i < allObjects; i++)
+    {
+        if (m_map->isCollidingObject(i))
+        {
+            m_map->removeObject(i);
+        }
+    }
 }
 
 void Scene::init1()
@@ -262,6 +281,8 @@ void Scene::init1()
     initMap1();
     // player
     initPlayer1();
+    // object
+    initObject1();
     // camera
     isCentered = true;
 }
@@ -308,4 +329,9 @@ void Scene::initPlayer1()
     m_map->setPlayerFlash();
     m_map->setPlayerFlashOn(true);
     m_map->setPlayerPixelImage(1, temp->PixelImage, temp->width, temp->height);
+}
+
+void Scene::initObject1()
+{
+    m_map->addObject(150, 150, 10, 10);
 }

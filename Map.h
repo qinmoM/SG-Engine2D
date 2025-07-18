@@ -36,6 +36,10 @@ struct Object
     int width;                          // width of the object
     int height;                         // height of the object
     PixelImage* pixelImage = nullptr;   // pointer to the pixel image object
+
+    Object(float x, float y, int w, int h) : x(x), y(y), width(w), height(h) { }
+
+    Object(float x, float y, int w, int h, PixelImage* pixelImage) : x(x), y(y), width(w), height(h), pixelImage(pixelImage) { }
 };
 
 // player class
@@ -64,10 +68,11 @@ class Map
 {
 protected:
     std::vector<Obstacle*> obstacles;                           // list of obstacles in the map
+    std::vector<std::shared_ptr<Object>> objects;               // list of objects in the map
     Player* player;                                             // player in the map
 public:
     Map();                                                      // constructor
-    ~Map();                                                     // destructor
+    virtual ~Map();                                                     // destructor
     // player related functions
     void setPlayer(const Player& player);                       // set the player in the map
     void setPlayer(float x, float y, int w, int h);             // set the player in the map
@@ -85,7 +90,6 @@ public:
     void movePlayer(int dx, int dy);                            // move the player by dx and dy
 
     // obstacle related functions
-    void addObstacle(Obstacle obstacle);                        // add an obstacle to the map  
     void addObstacle(float x, float y, int w, int h);           // add an obstacle to the map
     void removeObstacle(size_t index);                          // remove an obstacle from the map by index
     void clearObstacles();                                      // remove all obstacles from the map
@@ -93,7 +97,20 @@ public:
     Obstacle* getObstacle(size_t index);                        // get an obstacle by index
     void moveObstacle(size_t index, int dx, int dy);            // move an obstacle by index by dx and dy
 
+    // object related functions
+    void addObject(float x, float y, int w, int h);             // add an object to the map
+    void removeObject(size_t index);                            // remove an object from the map by index
+    void clearObjects();                                        // remove all objects from the map
+    int numObjects();                                           // get the number of objects in the map
+    std::shared_ptr<Object> getObject(size_t index);            // get an object by index
+    void moveObject(size_t index, int dx, int dy);              // move an object by index by dx and dy
+
     // function related functions
-    bool isColliding(int x, int y);                             // check the player is colliding with any obstacle
-    bool isCovered(int x, int y);                               // check the point is covered by any obstacle
+    bool isCollidingObstacles(int x, int y);                                // check the player is colliding with any obstacle
+    bool isCoveredObstacles(int x, int y);                                  // check the point is covered by any obstacle
+    bool isCollidingObject(int index);                                      // check the player is colliding with any object
+    bool isColliding(float x, float y, int w, int h, float dx, float dy, int dw, int dh);
+                                                                            // check the rectangle is covered by any obstacle
+    bool isCovered(float x, float y, int w, int h, float dx, float dy);     // check the rectangle is covered by any obstacle
+
 };
