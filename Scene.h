@@ -17,6 +17,7 @@ private:
 protected:
     Map* m_map;                         // map object
     bool isCentered = false;            // is player centered or not
+    bool isShelf = false;               // is shelf object and NPC or not
     float offsetX;                      // camera offset x
     float offsetY;                      // camera offset y
     std::vector<Color> colorPalette;    // color palette table

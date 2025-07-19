@@ -17,6 +17,10 @@ Map::~Map()
     {
         clearObstacles();
     }
+    if (objects.size() > 0)
+    {
+        clearObjects();
+    }
 }
 
 //              Player related functions
@@ -185,9 +189,15 @@ void Map::moveObstacle(size_t index, int x, int y)
 
 //              Object related functions
 
-void Map::addObject(float x, float y, int w, int h)
+void Map::addObject(float x, float y, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc)
 {
-    objects.push_back(std::make_shared<Object>(x, y, w, h));
+    PixelImage* pixelImage = new PixelImage{ size, pixels, width, height };
+    objects.push_back(std::make_shared<Object>(x, y, pixelImage, width * size, height * size, dataFunc));
+}
+
+void Map::addObject(float x, float y, int w, int h, std::function<void(DataManage*)> dataFunc)
+{
+    objects.push_back(std::make_shared<Object>(x, y, w, h, dataFunc));
 }
 
 void Map::removeObject(size_t index)
@@ -289,7 +299,9 @@ bool Map::isCollidingObject(int index)
     }
     
     if (isColliding(objects[index]->x, objects[index]->y, objects[index]->width, objects[index]->height,
-        player->x, player->y, player->width, player->height))
+            player->x, player->y, player->width, player->height) ||
+        isColliding(player->x, player->y, player->width, player->height,
+            objects[index]->x, objects[index]->y, objects[index]->width, objects[index]->height))
     {
         return true;
     }
@@ -317,4 +329,30 @@ bool Map::isCovered(float x, float y, int w, int h, float dx, float dy)
         return true;
     }
     return false;
+}
+
+bool Map::isCovered(float px, float py, float x, float y, float angleLeft, float angleRight, float vicinity, float distance)
+{
+    float dist = static_cast<float>(std::sqrt(static_cast<double>((px - x) * (px - x) + (py - y) * (py - y))));
+    if (dist > distance || dist < vicinity)
+    {
+        return false;
+    }
+
+    float angle = std::atan2(y - py, x - px) * 180.0f / 3.1415926535f;
+    float range = angleLeft - angleRight;
+    angle -= angleRight;
+    while (angle < 0.0f)
+    {
+        angle += 360.0f;
+    }
+    while (angle >= 360.0f)
+    {
+        angle -= 360.0f;
+    }
+    if (angle < 0.0f || angle > range)
+    {
+        return false;
+    }
+    return true;
 }

@@ -3,15 +3,17 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
+#include <functional>
+#include <cmath>
 #include "DataManage.h"
 
 // a simple pixel image struct// different graphics libraries need to correspond program
 struct PixelImage
 {
-    int size;
-    std::vector<std::vector<std::vector<uint8_t>>> pixels;
-    int width;
-    int height;
+    int size;                                                   // size of every pixel
+    std::vector<std::vector<std::vector<uint8_t>>> pixels;      // image information
+    int width;                                                  // the number of element width
+    int height;                                                 // the number of element height
 };
 
 // flashlight class// different graphics libraries need to correspond program
@@ -33,13 +35,38 @@ struct Object
 {
     float x;                            // x coordinate of the object
     float y;                            // x coordinate of the object
-    int width;                          // width of the object
-    int height;                         // height of the object
+    int width;                          // pixel width of the object
+    int height;                         // pixel height of the object
     PixelImage* pixelImage = nullptr;   // pointer to the pixel image object
 
-    Object(float x, float y, int w, int h) : x(x), y(y), width(w), height(h) { }
+    //              Functions
 
-    Object(float x, float y, int w, int h, PixelImage* pixelImage) : x(x), y(y), width(w), height(h), pixelImage(pixelImage) { }
+    std::function<void(DataManage*)> dataFunc = nullptr;
+
+    //              Constructor and Destructor
+
+    Object(float x, float y, int w, int h, std::function<void(DataManage*)> dataFunc = nullptr)
+        : x(x)
+        , y(y)
+        , width(w)
+        , height(h)
+        , dataFunc(dataFunc)
+    { }
+
+    Object(float x, float y, PixelImage* pixelImage, int w, int h, std::function<void(DataManage*)> dataFunc = nullptr)
+        : x(x)
+        , y(y)
+        , width(w)
+        , height(h)
+        , pixelImage(pixelImage)
+        , dataFunc(dataFunc)
+    { }
+
+    ~Object()
+    {
+        delete pixelImage;
+    }
+
 };
 
 // player class
@@ -72,7 +99,7 @@ protected:
     Player* player;                                             // player in the map
 public:
     Map();                                                      // constructor
-    virtual ~Map();                                                     // destructor
+    virtual ~Map();                                             // destructor
     // player related functions
     void setPlayer(const Player& player);                       // set the player in the map
     void setPlayer(float x, float y, int w, int h);             // set the player in the map
@@ -98,7 +125,10 @@ public:
     void moveObstacle(size_t index, int dx, int dy);            // move an obstacle by index by dx and dy
 
     // object related functions
-    void addObject(float x, float y, int w, int h);             // add an object to the map
+    void addObject(float x, float y, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc = nullptr);
+                                                                // add an object to the map
+    void addObject(float x, float y, int w, int h, std::function<void(DataManage*)> dataFunc = nullptr);
+                                                                // add an object to the map
     void removeObject(size_t index);                            // remove an object from the map by index
     void clearObjects();                                        // remove all objects from the map
     int numObjects();                                           // get the number of objects in the map
@@ -109,8 +139,11 @@ public:
     bool isCollidingObstacles(int x, int y);                                // check the player is colliding with any obstacle
     bool isCoveredObstacles(int x, int y);                                  // check the point is covered by any obstacle
     bool isCollidingObject(int index);                                      // check the player is colliding with any object
+
     bool isColliding(float x, float y, int w, int h, float dx, float dy, int dw, int dh);
                                                                             // check the rectangle is covered by any obstacle
     bool isCovered(float x, float y, int w, int h, float dx, float dy);     // check the rectangle is covered by any obstacle
+    bool isCovered(float px, float py, float x, float y, float angleLeft, float angleRight, float vicinity, float distance);
+                                                                            // check the point is covered by cone
 
 };

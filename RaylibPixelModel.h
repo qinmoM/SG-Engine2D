@@ -12,6 +12,10 @@ public:
 public:
     ~RaylibPixelModel();
     static RaylibPixelModel* create();
+    //          character
     void setTest();
     void setFuFu();
+
+    //          object
+    void setHeart();
 };

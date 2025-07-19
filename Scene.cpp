@@ -2,6 +2,8 @@
 
 Scene::Scene()
 {
+    // color palette
+    initColorPalette();
     m_map = new Map;
     init1();
 }
@@ -149,16 +151,67 @@ void Scene::draw()
     {
         Obstacle* obstacle = m_map->getObstacle(i);
         DrawRectangle(obstacle->x + offsetX, obstacle->y + offsetY,
-            obstacle->width, obstacle->height, Color{ 100, 100, 100, 255 });
+            obstacle->width, obstacle->height, Color{ 50, 50, 50, 255 });
     }
 
     //                  objects
     int allObjects = m_map->numObjects();
-    for (int i = 0; i < allObjects; i++)
+    if (isShelf)
     {
-        std::shared_ptr<Object> object = m_map->getObject(i);
-        DrawRectangle(object->x + offsetX, object->y + offsetY,
-            object->width, object->height, Color{ 255, 255, 255, 255 });
+        for (int i = 0; i < allObjects; i++)
+        {
+            std::shared_ptr<Object> object = m_map->getObject(i);
+            if (m_map->isCovered(player->x + player->width / 2, player->y + player->height / 2,
+                object->x + object->width / 2, object->y + object->height / 2,
+                player->flash->angle + player->flash->angleOfView / 2,
+                player->flash->angle - player->flash->angleOfView / 2,
+                player->flash->vicinity, player->flash->distance) )
+            {
+                // TODO: 优化射线检测
+                bool isDraw = true;
+                float oX = object->x + object->width / 2;
+                float oY = object->y + object->height / 2;
+                float pX = player->x + player->width / 2;
+                float pY = player->y + player->height / 2;
+                float dist = static_cast<float>(std::sqrt(static_cast<double>((oX - pX) * (oX - pX) + (oY - pY) * (oY - pY))));
+                for (int j = 0; j < dist; j += 2)
+                {
+                    if (m_map->isCoveredObstacles(pX + (oX - pX) / dist * j, pY + (oY - pY) / dist * j))
+                    {
+                        isDraw = false;
+                        break;
+                    }
+                }
+                if (isDraw)
+                {
+                    if (object->pixelImage)
+                    {
+                        drawPixelImage(object->pixelImage, object->x + offsetX, object->y + offsetY);
+                    }
+                    else
+                    {
+                        DrawRectangle(object->x + offsetX, object->y + offsetY,
+                            object->width, object->height, Color{ 255, 255, 255, 255 });
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < allObjects; i++)
+        {
+            std::shared_ptr<Object> object = m_map->getObject(i);
+            if (object->pixelImage)
+            {
+                drawPixelImage(object->pixelImage, object->x + offsetX, object->y + offsetY);
+            }
+            else
+            {
+                DrawRectangle(object->x + offsetX, object->y + offsetY,
+                    object->width, object->height, Color{ 255, 255, 255, 255 });
+            }
+        }
     }
 
     //                  player
@@ -270,13 +323,22 @@ void Scene::update(float delta)
     {
         if (m_map->isCollidingObject(i))
         {
-            m_map->removeObject(i);
+            std::shared_ptr<Object> object = m_map->getObject(i);
+            if (object->dataFunc && player->DMS)
+            {
+                object->dataFunc(player->DMS);
+                std::cout << "HP" << player->DMS->getHP() << std::endl;
+                m_map->removeObject(i);
+            }
         }
     }
 }
 
+//                Scene initialization
+
 void Scene::init1()
 {
+    isShelf = true;
     // obstacles
     initMap1();
     // player
@@ -314,8 +376,6 @@ void Scene::initMap1()
 
 void Scene::initPlayer1()
 {
-    // color palette
-    initColorPalette();
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
     //RaylibPixelModel* temp = RaylibPixelModel::create();
     temp->setFuFu();
@@ -325,7 +385,8 @@ void Scene::initPlayer1()
     m_map->setPlayerSpeed(140);
     m_map->setPlayerDataManage();
     Player* player = m_map->getPlayer();
-    player->DMS->setHP(10);
+    player->DMS->setMaxHP(10);
+    player->DMS->addHP(-9);
     m_map->setPlayerFlash();
     m_map->setPlayerFlashOn(true);
     m_map->setPlayerPixelImage(1, temp->PixelImage, temp->width, temp->height);
@@ -333,5 +394,13 @@ void Scene::initPlayer1()
 
 void Scene::initObject1()
 {
-    m_map->addObject(150, 150, 10, 10);
+    void (*func)(DataManage*) = [](DataManage* data) -> void {
+        data->addHP(1);
+    };
+    std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
+    temp->setHeart();
+    m_map->addObject(170.0f, 560.0f, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(170.0f, 800.0f, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(800.0f, 800.0f, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(550.0f, 300.0f, 3, temp->PixelImage, temp->width, temp->height, func);
 }

@@ -1,10 +1,57 @@
 #include "RaylibTools.h"
 
+bool RaylibTools::isSetRand = false; // is if set seed
 Color RaylibTools::colorCircleLine = WHITE; // Default color is white
 Color RaylibTools::colorLine = WHITE; // Default color is white
 int RaylibTools::sizeLine = 1; // Default size is 1
 int RaylibTools::lengthLine  = 1; // Default length is 1
 
+
+int RaylibTools::Random(int min, int max)
+{
+	if (!isSetRand)
+	{
+		srand(static_cast<unsigned int>(time(NULL)));
+		isSetRand = true;
+	}
+	if (min > max)
+	{
+		min = max + min;
+		max = min - max;
+		min = min - max;
+	}
+	return rand() % (max - min + 1) + min;
+}
+
+Color RaylibTools::RandomColor()
+{
+	unsigned char r = Random(0, 255);
+	unsigned char g = Random(0, 255);
+	unsigned char b = Random(0, 255);
+	return Color{ r, g, b, 255 };
+}
+
+Color RaylibTools::RandomColorAlpha(int minAlpha, int maxAlpha)
+{
+	Color color = RandomColor();
+	unsigned char a = Random(minAlpha, maxAlpha);
+	color.a = a;
+	return color;
+}
+
+Color RaylibTools::RandomColourless(int min, int max)
+{
+	unsigned char all = Random(min, max);
+	Color color = { all, all, all, 255 };
+	return color;
+}
+
+Color RaylibTools::RandomColourlessAlpha(int minAlpha, int maxAlpha, int min, int max)
+{
+	Color color = RandomColourless(min, max);
+	color.a = Random(minAlpha, maxAlpha);
+	return color;
+}
 
 void RaylibTools::SetColor(Color color) // Set the default color
 {
@@ -54,7 +101,7 @@ void RaylibTools::DrawCircleLine(int centerX, int centerY, float radius, int siz
 {
 	colorCircleLine = color; // Set circle line color
 	DrawRing(Vector2{ static_cast<float>(centerX), static_cast<float>(centerY) },
-		radius - size / 2.0f, radius + size / 2.0f, 0.0f, 360.0f, static_cast<int>(radius * 0.35f) + 1, color);
+		radius - size / 2.0f, radius + size / 2.0f, 0.0f, 360.0f, static_cast<int>(radius * 0.4f) + 4, color);
 }
 
 void RaylibTools::DrawCircleLine(int centerX, int centerY, float radius, int size)

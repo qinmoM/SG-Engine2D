@@ -1,17 +1,22 @@
 #pragma once
 
+typedef int typeHP;
+
 class DataManage
 {
 private:
     DataManage();
 protected:
-    float maxHP;
-    float currentHP;
+    typeHP maxHP;
+    typeHP currentHP;
 public:
     ~DataManage();
 
     static DataManage* create();
 
-    void setHP(float maxHP);
-    float getHP();
+    //          HP functions
+
+    void setMaxHP(typeHP maxHP);
+    typeHP getHP();
+    void addHP(typeHP currentHP);
 };
