@@ -1,7 +1,5 @@
-#include <raylib.h>
-#include <memory>
 #include <ctime>
-#include "Scene.h"
+#include "GameManager.h"
 
 const int SCREEN_WIDTH = 1000;
 const int SCREEN_HEIGHT = 1000;
@@ -13,8 +11,8 @@ int main()
     // Init Audio device
     InitAudioDevice();
     // init data
-    //Scene* scene = Scene::create();
-    std::unique_ptr<Scene> scene(Scene::create());
+    std::unique_ptr<GameManager> manager = GameManager::create();
+    manager->init();
 
     float timeCurrent = 0.0f;
     float timeLast = 0.0f;
@@ -27,9 +25,9 @@ int main()
         // Update
         ClearBackground(Color{ 50, 50, 50, 255 });
         timeCurrent = clock() / 1000.0f;
-        scene->update(timeCurrent - timeLast);
+        manager->update(timeCurrent - timeLast);
         timeLast = timeCurrent;
-        scene->draw();
+        manager->render();
         
         EndDrawing();
     }

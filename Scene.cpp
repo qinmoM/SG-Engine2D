@@ -2,9 +2,14 @@
 
 Scene::Scene()
 {
+    // mouse
+    mousePos = GetMousePosition();
+
     // color palette
     initColorPalette();
+
     m_map = new Map;
+
     init1();
 }
 
@@ -62,9 +67,9 @@ void Scene::initColorPalette()
     colorPalette.push_back(Color{255, 255, 0, 255});   // 黄
 }
 
-Scene* Scene::create()
+std::unique_ptr<Scene> Scene::create()
 {
-    return new Scene();
+    return std::unique_ptr<Scene>(new Scene());
 }
 
 void Scene::isPlayerCenter(bool is)
@@ -246,6 +251,9 @@ void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y)
 
 void Scene::update(float delta)
 {
+    // mouse event
+    mouseUpdata(delta);
+
     // player movement
     Player* player = m_map->getPlayer();
     float speed = player->speed;
@@ -286,30 +294,6 @@ void Scene::update(float delta)
         player->y += xIsColliding ? moveY * 1.4142f : moveY;
     }
 
-    // player flash
-    Vector2 mousePos = GetMousePosition();
-    if (player->flash)
-    {
-        player->flash->x = player->x + player->width / 2;
-        player->flash->y = player->y + player->height / 2;
-        if (isCentered)
-        {
-            if (mousePos.x && mousePos.y && !(mousePos.x == player->x && mousePos.y == player->y))
-            {
-                player->flash->angle = atan2(mousePos.y - GetScreenHeight() / 2,
-                    mousePos.x - GetScreenWidth() / 2) * 180.0f / PI;
-            }
-        }
-        else
-        {
-            if (mousePos.x && mousePos.y && !(mousePos.x == player->flash->x && mousePos.y == player->flash->y))
-            {
-                player->flash->angle = atan2(mousePos.y - player->flash->y,
-                    mousePos.x - player->flash->x) * 180.0f / PI;
-            }
-        }
-    }
-
     // camera
     if (isCentered)
     {
@@ -334,10 +318,30 @@ void Scene::update(float delta)
     }
 }
 
+void Scene::mouseUpdata(float delta)
+{
+    switch (model)
+    {
+    //      default model : do nothing
+    case 0:
+        break;
+
+    //      model 1
+    case 1:
+        mouseUpdata1(delta);
+        break;
+
+    default:
+        break;
+    }
+
+}
+
 //                Scene initialization
 
 void Scene::init1()
 {
+    model = 1;
     isShelf = true;
     // obstacles
     initMap1();
@@ -403,4 +407,71 @@ void Scene::initObject1()
     m_map->addObject(170.0f, 800.0f, 3, temp->PixelImage, temp->width, temp->height, func);
     m_map->addObject(800.0f, 800.0f, 3, temp->PixelImage, temp->width, temp->height, func);
     m_map->addObject(550.0f, 300.0f, 3, temp->PixelImage, temp->width, temp->height, func);
+}
+
+//                  mouse event
+
+void Scene::mouseUpdata1(float delta)
+{
+    mousePos = GetMousePosition();
+
+    //                  default event
+
+    // player flash
+    Player* player = m_map->getPlayer();
+    if (player->flash)
+    {
+        player->flash->x = player->x + player->width / 2;
+        player->flash->y = player->y + player->height / 2;
+        if (isCentered)
+        {
+            if (mousePos.x && mousePos.y && !(mousePos.x == player->x && mousePos.y == player->y))
+            {
+                player->flash->angle = atan2(mousePos.y - GetScreenHeight() / 2,
+                    mousePos.x - GetScreenWidth() / 2) * 180.0f / PI;
+            }
+        }
+        else
+        {
+            if (mousePos.x && mousePos.y && !(mousePos.x == player->flash->x && mousePos.y == player->flash->y))
+            {
+                player->flash->angle = atan2(mousePos.y - player->flash->y,
+                    mousePos.x - player->flash->x) * 180.0f / PI;
+            }
+        }
+    }
+
+    //                  left button event
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    {
+        ;
+    }
+
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+    {
+        ;
+    }
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    {
+        ;
+    }
+
+    //                  right button event
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+    {
+        ;
+    }
+
+    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    {
+        ;
+    }
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+    {
+        ;
+    }
 }

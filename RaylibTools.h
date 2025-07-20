@@ -61,6 +61,14 @@ public:
 
 	// Draw texture with percent size// texture: Image texture x, y: Image position percent: Image size
 	static void DrawTexture(Texture2D texture, float x, float y, float percent);
+
+	// 					Audio Helper
+
+	// Generate tone wave// frequency: Frequency in Hz durationSeconds: Duration in seconds sampleRate: Sample rate
+	static Wave GenerateTone(float frequency, float durationSeconds, unsigned int sampleRate = 44100U);
+	// Generate tone sound// frequency: Frequency in Hz durationSeconds: Duration in seconds sampleRate: Sample rate
+	static Sound GenerateToneSound(float frequency, float durationSeconds, unsigned int sampleRate = 44100U);
+
 };
 
 

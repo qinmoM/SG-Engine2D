@@ -7,6 +7,8 @@ int RaylibTools::sizeLine = 1; // Default size is 1
 int RaylibTools::lengthLine  = 1; // Default length is 1
 
 
+// 						Random Helper
+
 int RaylibTools::Random(int min, int max)
 {
 	if (!isSetRand)
@@ -53,11 +55,15 @@ Color RaylibTools::RandomColourlessAlpha(int minAlpha, int maxAlpha, int min, in
 	return color;
 }
 
+//							Global Set Function
+
 void RaylibTools::SetColor(Color color) // Set the default color
 {
 	colorCircleLine = color; // Set circle line color
 	RaylibTools::colorLine = color; // Set line color
 }
+
+// 						Drawing Helper of Simple Shapes
 
 void RaylibTools::DrawLine(int startX, int startY, int endX, int endY, int size, Color color)
 {
@@ -114,4 +120,43 @@ void RaylibTools::DrawTexture(Texture2D texture, float x, float y, float percent
 	float tw = static_cast<float>(texture.width) * percent; // now width of texture
 	float th = static_cast<float>(texture.height) * percent; // now height of texture
 	DrawTexturePro(texture, Rectangle{ 0, 0, tw, th }, Rectangle{ x, y, tw, th }, Vector2{ 0, 0 }, 0, WHITE);
+}
+
+// 								Audio Helper
+
+Wave RaylibTools::GenerateTone(float frequency, float durationSeconds, unsigned int sampleRate)
+{
+	unsigned int sampleCount = static_cast<unsigned int>(durationSeconds * sampleRate);
+
+	unsigned int Size = static_cast<unsigned int>(sizeof(short) * 8);
+
+	unsigned int channel = 1;
+
+	float amplitude = 32767.0f; // 16-bit signed maximum amplitude
+	float increment = frequency * 2.0f * PI / sampleRate;
+	short* samples = new short[sampleCount];
+	for (unsigned int i = 0; i < sampleCount; i++)
+	{
+		samples[i] = static_cast<short>(amplitude * std::sinf(i * increment));
+	}
+
+	Wave wave = {
+		.frameCount = sampleCount,
+		.sampleRate = sampleRate,
+		.sampleSize = Size,
+		.channels = channel,
+		.data = samples
+	};
+
+	return wave;
+}
+
+Sound RaylibTools::GenerateToneSound(float frequency, float durationSeconds, unsigned int sampleRate)
+{
+	Wave wave = GenerateTone(frequency, durationSeconds, sampleRate);
+	Sound sound = LoadSoundFromWave(wave);
+
+	UnloadWave(wave);
+
+	return sound;
 }
