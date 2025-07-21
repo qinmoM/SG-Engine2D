@@ -10,10 +10,12 @@
 // a simple pixel image struct// different graphics libraries need to correspond program
 struct PixelImage
 {
+    int id = 0;                                                 // id of the pixel image
     int size;                                                   // size of every pixel
     std::vector<std::vector<std::vector<uint8_t>>> pixels;      // image information
     int width;                                                  // the number of element width
     int height;                                                 // the number of element height
+    int curr = 0;                                               // now pixel index
 };
 
 // flashlight class// different graphics libraries need to correspond program
@@ -91,9 +93,26 @@ struct Obstacle
     int height;                         // height of the obstacle
 };
 
+// moveble range class
+struct Coverage
+{
+    float x;                            // x coordinate of the coverage
+    float y;                            // y coordinate of the coverage
+    int width;                          // width of the coverage
+    int height;                         // height of the coverage
+
+    Coverage(float x, float y, int w, int h)
+        : x(x)
+        , y(y)
+        , width(w)
+        , height(h)
+    { }
+};
+
 class Map
 {
 protected:
+    std::shared_ptr<Coverage> coverage = nullptr;               // movable range of the player
     std::vector<Obstacle*> obstacles;                           // list of obstacles in the map
     std::vector<std::shared_ptr<Object>> objects;               // list of objects in the map
     Player* player;                                             // player in the map
@@ -110,11 +129,15 @@ public:
     void setPlayerFlashView(float view, float angle = 0.0f);    // set the view range and the angle orientation
     void setPlayerFlashDist(float dist, float vici = 10.0f);    // set the view distance and vicinity
     void setPlayerFlashPrecision(bool turn);                    // set the precision is on or off
-    void setPlayerPixelImage(int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height);
+    void setPlayerPixelImage(int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height);
                                                                 // set the pixel image of the player
     Player* getPlayer();                                        // get the player in the map
     void clearPlayer();                                         // remove the player from the map
     void movePlayer(int dx, int dy);                            // move the player by dx and dy
+
+    // movable range related functions
+    void setCoverage(float x, float y, int w, int h);           // set the movable range of the player
+    void clearCoverage();                                       // remove the movable range from the map
 
     // obstacle related functions
     void addObstacle(float x, float y, int w, int h);           // add an obstacle to the map
@@ -125,7 +148,7 @@ public:
     void moveObstacle(size_t index, int dx, int dy);            // move an obstacle by index by dx and dy
 
     // object related functions
-    void addObject(float x, float y, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc = nullptr);
+    void addObject(float x, float y, int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc = nullptr);
                                                                 // add an object to the map
     void addObject(float x, float y, int w, int h, std::function<void(DataManage*)> dataFunc = nullptr);
                                                                 // add an object to the map
@@ -136,6 +159,7 @@ public:
     void moveObject(size_t index, int dx, int dy);              // move an object by index by dx and dy
 
     // function related functions
+    bool isCollidingCoverage(int x, int y);                                 // check the player is colliding with the movable range
     bool isCollidingObstacles(int x, int y);                                // check the player is colliding with any obstacle
     bool isCoveredObstacles(int x, int y);                                  // check the point is covered by any obstacle
     bool isCollidingObject(int index);                                      // check the player is colliding with any object

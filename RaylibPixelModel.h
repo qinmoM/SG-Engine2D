@@ -9,12 +9,15 @@ private:
 public:
     std::vector<std::vector<std::vector<uint8_t>>> PixelImage;
     int width, height;
+    int id = 0;
 public:
     ~RaylibPixelModel();
     static RaylibPixelModel* create();
+    
     //          character
     void setTest();
     void setFuFu();
+    void setStudent();
 
     //          object
     void setHeart();

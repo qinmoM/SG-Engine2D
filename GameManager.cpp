@@ -9,6 +9,10 @@ void GameManager::init()
 {
     m_state = GameState::Playing;
     m_scene = Scene::create();
+
+    // test code
+    m_scene->initPlayer1();
+    m_scene->initRange1();
 }
 
 void GameManager::render()

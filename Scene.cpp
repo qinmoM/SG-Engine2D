@@ -10,7 +10,6 @@ Scene::Scene()
 
     m_map = new Map;
 
-    init1();
 }
 
 Scene::~Scene()
@@ -85,72 +84,104 @@ void Scene::isPlayerCenter(bool is)
 
 void Scene::draw()
 {
+    // player flash
+    drawFlash();
+
+    //                  obstacles
+    if (false)
+    {
+        drawObstacles();
+    }
+
+    //                  objects
+    drawObjects();
+
+    //                  player
+    drawPlayer();
+}
+
+void Scene::drawPlayer()
+{
+    Player* player = m_map->getPlayer();
+    if (!player->pixelImage)
+    {
+        DrawRectangle(player->x + offsetX, player->y + offsetY, player->width,
+            player->height, Color{ 55, 155, 55, 255 });
+    }
+    else
+    {
+        drawPixelImage(player->pixelImage, player->x + offsetX, player->y + offsetY, player->pixelImage->curr);
+    }
+}
+
+void Scene::drawFlash()
+{
     Player* player = m_map->getPlayer();
 
-    // player flash
+    if (!(player->flash && player->flash->on))
+    {
+        return;
+    }
+
     if (player->flash->isObstructed)
     {
         //              Fanned player flash(unobstructed view)
-        if (player->flash->on)
+        float px = player->flash->x;
+        float py = player->flash->y;
+        float x = 0;
+        float y = 0;
+        float angle = 0;
+        float distance = player->flash->distance;
+        float vicinity = player->flash->vicinity;
+        for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
         {
-            float px = player->flash->x;
-            float py = player->flash->y;
-            float x = 0;
-            float y = 0;
-            float angle = 0;
-            float distance = player->flash->distance;
-            float vicinity = player->flash->vicinity;
-            for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
-            {
-                angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
-                float xNear = px + vicinity * cos(angle * PI / 180.0f);
-                float yNear = py + vicinity * sin(angle * PI / 180.0f);
-                float x = px + distance * cos(angle * PI / 180.0f);
-                float y = py + distance * sin(angle * PI / 180.0f);
-                RaylibTools::DrawLine(xNear + offsetX, yNear + offsetY, x + offsetX,
-                    y + offsetY, 3, Color{ 255, 255, 255, 50 });
-            }
+            angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
+            float xNear = px + vicinity * cos(angle * PI / 180.0f);
+            float yNear = py + vicinity * sin(angle * PI / 180.0f);
+            float x = px + distance * cos(angle * PI / 180.0f);
+            float y = py + distance * sin(angle * PI / 180.0f);
+            RaylibTools::DrawLine(xNear + offsetX, yNear + offsetY, x + offsetX,
+                y + offsetY, 3, Color{ 255, 255, 255, 50 });
         }
     }
     else
     {
         //              Fanned player flash(obstructed view)
-        if (player->flash->on)
+        float px = player->flash->x;
+        float py = player->flash->y;
+        float x = 0;
+        float y = 0;
+        float angle = 0;
+        int precision = player->flash->precision ? 1 : 4;
+        float vicinity = player->flash->vicinity;
+        for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
         {
-            float px = player->flash->x;
-            float py = player->flash->y;
-            float x = 0;
-            float y = 0;
-            float angle = 0;
-            int precision = player->flash->precision ? 1 : 4;
-            float vicinity = player->flash->vicinity;
-            for (int i = 0; i < player->flash->angleOfView * 2.0f; i++)
+            angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
+            float xNear = px + vicinity * cos(angle * PI / 180.0f);
+            float yNear = py + vicinity * sin(angle * PI / 180.0f);
+            int temp = 0;
+            bool isDraw = false;
+            for (; temp < player->flash->distance; temp += precision)
             {
-                angle = player->flash->angle - player->flash->angleOfView / 2 + i / 2.0f;
-                float xNear = px + vicinity * cos(angle * PI / 180.0f);
-                float yNear = py + vicinity * sin(angle * PI / 180.0f);
-                int temp = 0;
-                bool isDraw = false;
-                for (; temp < player->flash->distance; temp += precision)
+                x = px + temp * cos(angle * PI / 180.0f);
+                y = py + temp * sin(angle * PI / 180.0f);
+                if (m_map->isCoveredObstacles(x, y))
                 {
-                    x = px + temp * cos(angle * PI / 180.0f);
-                    y = py + temp * sin(angle * PI / 180.0f);
-                    if (m_map->isCoveredObstacles(x, y))
-                    {
-                        break;
-                    }
+                    break;
                 }
-                isDraw = temp > vicinity ? true : false;
-                if (isDraw)
-                {
-                    RaylibTools::DrawLine(xNear + offsetX, yNear + offsetY, x + offsetX,
-                        y + offsetY, 3, Color{ 255, 255, 255, 50 });
-                }
+            }
+            isDraw = temp > vicinity ? true : false;
+            if (isDraw)
+            {
+                RaylibTools::DrawLine(xNear + offsetX, yNear + offsetY, x + offsetX,
+                    y + offsetY, 3, Color{ 255, 255, 255, 50 });
             }
         }
     }
+}
 
-    //                  obstacles
+void Scene::drawObstacles()
+{
     int all = m_map->numObstacles();
     for (int i = 0; i < all; i++)
     {
@@ -158,11 +189,14 @@ void Scene::draw()
         DrawRectangle(obstacle->x + offsetX, obstacle->y + offsetY,
             obstacle->width, obstacle->height, Color{ 50, 50, 50, 255 });
     }
+}
 
-    //                  objects
+void Scene::drawObjects()
+{
     int allObjects = m_map->numObjects();
     if (isShelf)
     {
+        Player* player = m_map->getPlayer();
         for (int i = 0; i < allObjects; i++)
         {
             std::shared_ptr<Object> object = m_map->getObject(i);
@@ -218,20 +252,9 @@ void Scene::draw()
             }
         }
     }
-
-    //                  player
-    if (!player->pixelImage)
-    {
-        DrawRectangle(player->x + offsetX, player->y + offsetY, player->width,
-            player->height, Color{ 55, 155, 55, 255 });
-    }
-    else
-    {
-        drawPixelImage(player->pixelImage, player->x + offsetX, player->y + offsetY);
-    }
 }
 
-void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y)
+void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y, int index)
 {
     Color color;
     int size = pixelImage->size;
@@ -239,7 +262,7 @@ void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y)
     {
         for (int j = 0; j < pixelImage->width; j++)
         {
-            uint8_t temp = pixelImage->pixels[0][i][j];
+            uint8_t temp = pixelImage->pixels[index][i][j];
             if (250 != temp)
             {
                 color = colorPalette[temp];
@@ -252,7 +275,9 @@ void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y)
 void Scene::update(float delta)
 {
     // mouse event
-    mouseUpdata(delta);
+    mouseUpdate(delta);
+
+    // keyboard event
 
     // player movement
     Player* player = m_map->getPlayer();
@@ -285,11 +310,13 @@ void Scene::update(float delta)
     // update player position
     bool xIsColliding = false;
     bool yIsColliding = false;
-    if (moveX && !(xIsColliding = m_map->isCollidingObstacles(player->x + moveX, player->y)))
+    if (moveX && !(xIsColliding = (m_map->isCollidingObstacles(player->x + moveX, player->y) || 
+                                    m_map->isCollidingCoverage(player->x + moveX, player->y))))
     {
         player->x += yIsColliding ? moveX * 1.4142f : moveX;
     }
-    if (moveY && !(yIsColliding = m_map->isCollidingObstacles(player->x, player->y + moveY)))
+    if (moveY && !(yIsColliding = (m_map->isCollidingObstacles(player->x, player->y + moveY) ||
+                                    m_map->isCollidingCoverage(player->x, player->y + moveY))))
     {
         player->y += xIsColliding ? moveY * 1.4142f : moveY;
     }
@@ -311,14 +338,35 @@ void Scene::update(float delta)
             if (object->dataFunc && player->DMS)
             {
                 object->dataFunc(player->DMS);
-                std::cout << "HP" << player->DMS->getHP() << std::endl;
                 m_map->removeObject(i);
             }
         }
     }
+
+    // player pixel image index
+    switch (player->pixelImage->id)
+    {
+    case 3:
+        if (left && right)
+        {
+            break;
+        }
+        if (left)
+        {
+            player->pixelImage->curr = 0;
+        }
+        if (right)
+        {
+            player->pixelImage->curr = 1;
+        }
+        break;
+    default:
+        break;
+    }
+
 }
 
-void Scene::mouseUpdata(float delta)
+void Scene::mouseUpdate(float delta)
 {
     switch (model)
     {
@@ -328,7 +376,7 @@ void Scene::mouseUpdata(float delta)
 
     //      model 1
     case 1:
-        mouseUpdata1(delta);
+        mouseUpdate1(delta);
         break;
 
     default:
@@ -378,22 +426,26 @@ void Scene::initMap1()
     m_map->addObstacle(740, 615, 20, 250);
 }
 
+void Scene::initRange1()
+{
+    m_map->setCoverage(100, 100, 2000, 1500);
+}
+
 void Scene::initPlayer1()
 {
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
     //RaylibPixelModel* temp = RaylibPixelModel::create();
-    temp->setFuFu();
+    // temp->setFuFu();
+    temp->setStudent();
 
     // player
     m_map->setPlayer(176, 650, 20, 20);
-    m_map->setPlayerSpeed(140);
+    m_map->setPlayerSpeed(200);
     m_map->setPlayerDataManage();
     Player* player = m_map->getPlayer();
     player->DMS->setMaxHP(10);
     player->DMS->addHP(-9);
-    m_map->setPlayerFlash();
-    m_map->setPlayerFlashOn(true);
-    m_map->setPlayerPixelImage(1, temp->PixelImage, temp->width, temp->height);
+    m_map->setPlayerPixelImage(temp->id, 4, temp->PixelImage, temp->width, temp->height);
 }
 
 void Scene::initObject1()
@@ -403,15 +455,15 @@ void Scene::initObject1()
     };
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
     temp->setHeart();
-    m_map->addObject(170.0f, 560.0f, 3, temp->PixelImage, temp->width, temp->height, func);
-    m_map->addObject(170.0f, 800.0f, 3, temp->PixelImage, temp->width, temp->height, func);
-    m_map->addObject(800.0f, 800.0f, 3, temp->PixelImage, temp->width, temp->height, func);
-    m_map->addObject(550.0f, 300.0f, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(170.0f, 560.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(170.0f, 800.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(800.0f, 800.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(550.0f, 300.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
 }
 
 //                  mouse event
 
-void Scene::mouseUpdata1(float delta)
+void Scene::mouseUpdate1(float delta)
 {
     mousePos = GetMousePosition();
 
@@ -475,3 +527,5 @@ void Scene::mouseUpdata1(float delta)
         ;
     }
 }
+
+

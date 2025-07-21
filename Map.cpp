@@ -100,11 +100,11 @@ void Map::setPlayerFlashPrecision(bool turn)
     }
 }
 
-void Map::setPlayerPixelImage(int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height)
+void Map::setPlayerPixelImage(int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height)
 {
     if (player)
     {
-        player->pixelImage = new PixelImage{ size, pixels, width, height };
+        player->pixelImage = new PixelImage{ id, size, pixels, width, height };
         player->width = width * size;
         player->height = height * size;
     }
@@ -132,6 +132,13 @@ void Map::clearPlayer()
     }
     delete player;
     player = nullptr;
+}
+
+//              movable range related functions
+
+void Map::setCoverage(float x, float y, int w, int h)
+{
+    coverage = std::shared_ptr<Coverage>(new Coverage(x, y, w, h));
 }
 
 //              Obstacle related functions
@@ -189,9 +196,9 @@ void Map::moveObstacle(size_t index, int x, int y)
 
 //              Object related functions
 
-void Map::addObject(float x, float y, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc)
+void Map::addObject(float x, float y, int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc)
 {
-    PixelImage* pixelImage = new PixelImage{ size, pixels, width, height };
+    PixelImage* pixelImage = new PixelImage{ id, size, pixels, width, height };
     objects.push_back(std::make_shared<Object>(x, y, pixelImage, width * size, height * size, dataFunc));
 }
 
@@ -239,6 +246,16 @@ void Map::moveObject(size_t index, int x, int y)
 }
 
 //              Collision related functions
+
+bool Map::isCollidingCoverage(int x, int y)
+{
+    if (x > coverage->x && x + player->width < coverage->x + coverage->width &&
+        y > coverage->y && y + player->height < coverage->y + coverage->height)
+    {
+        return false;
+    }
+    return true;
+}
 
 bool Map::isCollidingObstacles(int x, int y)
 {

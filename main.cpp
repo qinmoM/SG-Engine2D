@@ -7,6 +7,7 @@ const int SCREEN_HEIGHT = 1000;
 int main()
 {
     // Initialize the window
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_MAXIMIZED);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Map");
     // Init Audio device
     InitAudioDevice();
@@ -22,11 +23,14 @@ int main()
     while (!WindowShouldClose())
     {
         BeginDrawing();
+    
         // Update
-        ClearBackground(Color{ 50, 50, 50, 255 });
+        ClearBackground(Color{ 0, 0, 0, 255 });
         timeCurrent = clock() / 1000.0f;
         manager->update(timeCurrent - timeLast);
         timeLast = timeCurrent;
+
+        // Render
         manager->render();
         
         EndDrawing();

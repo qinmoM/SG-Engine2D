@@ -1,14 +1,7 @@
 #pragma once
 
 #include "Scene.h"
-
-enum class GameState
-{
-    Menu,
-    Playing,
-    Paused,
-    GameOver
-};
+#include "State.h"
 
 class GameManager
 {

@@ -31,15 +31,20 @@ public:
     static std::unique_ptr<Scene> create();
     void isPlayerCenter(bool is);
     void draw();
-    void drawPixelImage(PixelImage* pixelImage, int x, int y);
+    void drawPlayer();
+    void drawFlash();
+    void drawObstacles();
+    void drawObjects();
+    void drawPixelImage(PixelImage* pixelImage, int x, int y, int index = 0);
     void update(float delta);
-    void mouseUpdata(float delta);
+    void mouseUpdate(float delta);
 
     void init1();
 
     void initMap1();
+    void initRange1();
     void initPlayer1();
     void initObject1();
-    void mouseUpdata1(float delta);
+    void mouseUpdate1(float delta);
 
 };
