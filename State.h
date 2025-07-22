@@ -1,5 +1,12 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+#include "RaylibTools.h"
+#include "RaylibPixelModel.h"
+
+//               From < GameManager.h >
+
 enum class GameState
 {
     Menu,
@@ -7,3 +14,5 @@ enum class GameState
     Paused,
     GameOver
 };
+
+//               ~ End of GameManager.h ~

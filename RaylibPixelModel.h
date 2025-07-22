@@ -19,6 +19,9 @@ public:
     void setFuFu();
     void setStudent();
 
-    //          object
+    //           object
     void setHeart();
+
+    //             key
+    void setHomeKey1();
 };

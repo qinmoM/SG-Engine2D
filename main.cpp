@@ -1,13 +1,13 @@
 #include <ctime>
 #include "GameManager.h"
 
-const int SCREEN_WIDTH = 1000;
+const int SCREEN_WIDTH = 1500;
 const int SCREEN_HEIGHT = 1000;
 
 int main()
 {
     // Initialize the window
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_MAXIMIZED);
+    // SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_MAXIMIZED);
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Map");
     // Init Audio device
     InitAudioDevice();
@@ -25,7 +25,7 @@ int main()
         BeginDrawing();
     
         // Update
-        ClearBackground(Color{ 0, 0, 0, 255 });
+        manager->brackground();
         timeCurrent = clock() / 1000.0f;
         manager->update(timeCurrent - timeLast);
         timeLast = timeCurrent;

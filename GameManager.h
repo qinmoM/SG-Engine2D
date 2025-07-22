@@ -9,6 +9,7 @@ public:
     static std::unique_ptr<GameManager> create();
 
     void init();
+    void brackground();
     void render();
     void update(float delta);
 

@@ -16,6 +16,14 @@ struct PixelImage
     int width;                                                  // the number of element width
     int height;                                                 // the number of element height
     int curr = 0;                                               // now pixel index
+
+    PixelImage(int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height)
+        : id(id)
+        , size(size)
+        , pixels(pixels)
+        , width(width)
+        , height(height)
+    { }
 };
 
 // flashlight class// different graphics libraries need to correspond program

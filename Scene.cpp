@@ -84,7 +84,10 @@ void Scene::isPlayerCenter(bool is)
 
 void Scene::draw()
 {
-    // player flash
+    //                  background
+    drawBackground();
+
+    //                  player flash
     drawFlash();
 
     //                  obstacles
@@ -98,6 +101,15 @@ void Scene::draw()
 
     //                  player
     drawPlayer();
+
+    //                  buttons
+    drawButtons();
+
+}
+
+void Scene::drawBackground()
+{
+    ClearBackground(Color{ 205, 205, 215, 255 });
 }
 
 void Scene::drawPlayer()
@@ -254,6 +266,21 @@ void Scene::drawObjects()
     }
 }
 
+void Scene::drawButtons()
+{
+    for (std::unique_ptr<Button>& button : buttons)
+    {
+        if (button->image)
+        {
+            drawPixelImage(button->image.get(), button->x + offsetX, button->y + offsetY, button->image->curr);
+        }
+        else
+        {
+            DrawRectangle(button->x + offsetX, button->y + offsetY, button->width, button->height, Color{ 180, 170, 170, 200 });
+        }
+    }
+}
+
 void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y, int index)
 {
     Color color;
@@ -274,6 +301,9 @@ void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y, int index)
 
 void Scene::update(float delta)
 {
+    // button event
+    buttonUpdate();
+
     // mouse event
     mouseUpdate(delta);
 
@@ -385,6 +415,17 @@ void Scene::mouseUpdate(float delta)
 
 }
 
+void Scene::buttonUpdate()
+{
+    for (std::unique_ptr<Button>& button : buttons)
+    {
+        if (button->way && button->way(*button))
+        {
+            button->event();
+        }
+    }
+}
+
 //                Scene initialization
 
 void Scene::init1()
@@ -399,6 +440,32 @@ void Scene::init1()
     initObject1();
     // camera
     isCentered = true;
+}
+
+void Scene::initButton1()
+{
+    int size = 6;
+    int w = GetScreenWidth();
+    std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
+    temp->setHomeKey1();
+
+    buttons.push_back(Button::create(w - size * temp->width, 0, w, size * temp->height,
+        [](Button& b) -> bool
+        {
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+            {
+                Vector2 mousePos = GetMousePosition();
+                return b.isClicked(mousePos.x, mousePos.y);
+            }
+            return false;
+        },
+        []() -> void
+        {
+            exit(0);
+        })
+    );
+    
+    buttons[buttons.size() - 1]->setImage(temp->id, size, temp->PixelImage, temp->width, temp->height);
 }
 
 void Scene::initMap1()
@@ -428,7 +495,7 @@ void Scene::initMap1()
 
 void Scene::initRange1()
 {
-    m_map->setCoverage(100, 100, 2000, 1500);
+    m_map->setCoverage(100, 100, 1300, 800);
 }
 
 void Scene::initPlayer1()
@@ -440,7 +507,7 @@ void Scene::initPlayer1()
 
     // player
     m_map->setPlayer(176, 650, 20, 20);
-    m_map->setPlayerSpeed(200);
+    m_map->setPlayerSpeed(185);
     m_map->setPlayerDataManage();
     Player* player = m_map->getPlayer();
     player->DMS->setMaxHP(10);

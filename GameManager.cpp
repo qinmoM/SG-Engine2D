@@ -13,6 +13,16 @@ void GameManager::init()
     // test code
     m_scene->initPlayer1();
     m_scene->initRange1();
+    m_scene->initButton1();
+
+}
+
+void GameManager::brackground()
+{
+    ClearBackground(Color{ 205, 205, 215, 255 });
+
+    // DrawTexture(brackground, 0, 0, Color { 0, 0, 0, 0 });
+
 }
 
 void GameManager::render()

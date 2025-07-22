@@ -104,7 +104,7 @@ void Map::setPlayerPixelImage(int id, int size, std::vector<std::vector<std::vec
 {
     if (player)
     {
-        player->pixelImage = new PixelImage{ id, size, pixels, width, height };
+        player->pixelImage = new PixelImage(id, size, pixels, width, height);
         player->width = width * size;
         player->height = height * size;
     }
@@ -198,7 +198,7 @@ void Map::moveObstacle(size_t index, int x, int y)
 
 void Map::addObject(float x, float y, int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc)
 {
-    PixelImage* pixelImage = new PixelImage{ id, size, pixels, width, height };
+    PixelImage* pixelImage = new PixelImage(id, size, pixels, width, height);
     objects.push_back(std::make_shared<Object>(x, y, pixelImage, width * size, height * size, dataFunc));
 }
 
