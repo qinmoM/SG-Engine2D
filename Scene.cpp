@@ -1,4 +1,5 @@
 #include "Scene.h"
+#include "GameManager.h"
 
 Scene::Scene()
 {
@@ -84,9 +85,6 @@ void Scene::isPlayerCenter(bool is)
 
 void Scene::draw()
 {
-    //                  background
-    drawBackground();
-
     //                  player flash
     drawFlash();
 
@@ -122,7 +120,7 @@ void Scene::drawPlayer()
     }
     else
     {
-        drawPixelImage(player->pixelImage, player->x + offsetX, player->y + offsetY, player->pixelImage->curr);
+        drawPixelImage(player->pixelImage, player->x + offsetX, player->y + offsetY);
     }
 }
 
@@ -272,7 +270,7 @@ void Scene::drawButtons()
     {
         if (button->image)
         {
-            drawPixelImage(button->image.get(), button->x + offsetX, button->y + offsetY, button->image->curr);
+            drawPixelImage(button->image.get(), button->x + offsetX, button->y + offsetY);
         }
         else
         {
@@ -281,15 +279,16 @@ void Scene::drawButtons()
     }
 }
 
-void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y, int index)
+void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y)
 {
     Color color;
     int size = pixelImage->size;
+    int curr = pixelImage->curr;
     for (int i = 0; i < pixelImage->height; i++)
     {
         for (int j = 0; j < pixelImage->width; j++)
         {
-            uint8_t temp = pixelImage->pixels[index][i][j];
+            uint8_t temp = pixelImage->pixels[curr][i][j];
             if (250 != temp)
             {
                 color = colorPalette[temp];
@@ -376,7 +375,7 @@ void Scene::update(float delta)
     // player pixel image index
     switch (player->pixelImage->id)
     {
-    case 3:
+    case 1:
         if (left && right)
         {
             break;
@@ -442,7 +441,7 @@ void Scene::init1()
     isCentered = true;
 }
 
-void Scene::initButton1()
+void Scene::initButton1(GameManager& gameManager)
 {
     int size = 6;
     int w = GetScreenWidth();
@@ -459,13 +458,13 @@ void Scene::initButton1()
             }
             return false;
         },
-        []() -> void
+        [&gameManager]() -> void
         {
-            exit(0);
+            gameManager.setMenu();
         })
     );
     
-    buttons[buttons.size() - 1]->setImage(temp->id, size, temp->PixelImage, temp->width, temp->height);
+    buttons[buttons.size() - 1]->setImage(temp->id, size, temp->Image, temp->width, temp->height);
 }
 
 void Scene::initMap1()
@@ -512,7 +511,7 @@ void Scene::initPlayer1()
     Player* player = m_map->getPlayer();
     player->DMS->setMaxHP(10);
     player->DMS->addHP(-9);
-    m_map->setPlayerPixelImage(temp->id, 4, temp->PixelImage, temp->width, temp->height);
+    m_map->setPlayerPixelImage(temp->id, 4, temp->Image, temp->width, temp->height);
 }
 
 void Scene::initObject1()
@@ -522,10 +521,10 @@ void Scene::initObject1()
     };
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
     temp->setHeart();
-    m_map->addObject(170.0f, 560.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
-    m_map->addObject(170.0f, 800.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
-    m_map->addObject(800.0f, 800.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
-    m_map->addObject(550.0f, 300.0f, temp->id, 3, temp->PixelImage, temp->width, temp->height, func);
+    m_map->addObject(170.0f, 560.0f, temp->id, 3, temp->Image, temp->width, temp->height, func);
+    m_map->addObject(170.0f, 800.0f, temp->id, 3, temp->Image, temp->width, temp->height, func);
+    m_map->addObject(800.0f, 800.0f, temp->id, 3, temp->Image, temp->width, temp->height, func);
+    m_map->addObject(550.0f, 300.0f, temp->id, 3, temp->Image, temp->width, temp->height, func);
 }
 
 //                  mouse event

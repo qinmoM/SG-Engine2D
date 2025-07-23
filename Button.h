@@ -1,10 +1,23 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include "Map.h"
 
 class Button
 {
+public:
+    int x;                                              // x position of the button
+    int y;                                              // y position of the button
+    int width;                                          // width of the button
+    int height;                                         // height of the button
+
+    std::unique_ptr<PixelImage> image = nullptr;        // image of the button
+
+public:
+    std::function<bool(Button&)> way = nullptr;
+    std::function<void()> event = nullptr;
+
 public:
     //                  create method
 
@@ -13,7 +26,8 @@ public:
         return std::unique_ptr<Button>(new Button(x, y, width, height));
     }
 
-    static std::unique_ptr<Button> create(int x, int y, int width, int height, std::function<bool(Button&)> way, std::function<void()> event)
+    static std::unique_ptr<Button> create(int x, int y, int width, int height,
+        std::function<bool(Button&)> way, std::function<void()> event)
     {
         return std::unique_ptr<Button>(new Button(x, y, width, height, way, event));
     }
@@ -30,23 +44,9 @@ public:
         return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
     }
 
-
-
     //            destructor
 
     virtual ~Button() = default;
-
-public:
-    int x;                                          // x position of the button
-    int y;                                          // y position of the button
-    int width;                                      // width of the button
-    int height;                                     // height of the button
-
-    std::unique_ptr<PixelImage> image = nullptr;    // image of the button
-
-public:
-    std::function<bool(Button&)> way = nullptr;
-    std::function<void()> event = nullptr;
 
 protected:
     Button(int x, int y, int width, int height)
@@ -54,9 +54,7 @@ protected:
         , y(y)
         , width(width)
         , height(height)
-    {
-        ;
-    }
+    { }
 
     Button(int x, int y, int width, int height, std::function<bool(Button&)> way, std::function<void()> event)
         : x(x)

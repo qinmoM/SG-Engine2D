@@ -25,7 +25,7 @@ int main()
         BeginDrawing();
     
         // Update
-        manager->brackground();
+        manager->background();
         timeCurrent = clock() / 1000.0f;
         manager->update(timeCurrent - timeLast);
         timeLast = timeCurrent;

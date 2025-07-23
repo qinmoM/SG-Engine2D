@@ -16,12 +16,84 @@ RaylibPixelModel* RaylibPixelModel::create()
     return new RaylibPixelModel();
 }
 
+void RaylibPixelModel::setColorList(std::vector<Color> colorPalette)
+{
+    colorPalette.clear();
+
+    int index = 0;
+
+    // opaques
+    for (int r = 0; r < 5; r += 1)
+    {
+        for (int g = 0; g < 5; g += 1)
+        {
+            for (int b = 0; b < 5; b += 1)
+            {
+                colorPalette.push_back(Color {
+                    static_cast<unsigned char>(r * 64 > 255 ? 255 : r * 64),
+                    static_cast<unsigned char>(g * 64 > 255 ? 255 : g * 64),
+                    static_cast<unsigned char>(b * 64 > 255 ? 255 : b * 64),
+                    255
+                });
+                index++;
+            }
+        }
+    }
+
+    // transparents
+    for (int r = 0; r < 5; r += 1)
+    {
+        for (int g = 0; g < 5; g += 1)
+        {
+            for (int b = 0; b < 5; b += 1)
+            {
+                colorPalette.push_back(Color{
+                    static_cast<unsigned char>(r * 64 > 255 ? 255 : r * 64),
+                    static_cast<unsigned char>(g * 64 > 255 ? 255 : g * 64),
+                    static_cast<unsigned char>(b * 64 > 255 ? 255 : b * 64),
+                    128
+                });
+                index++;
+            }
+        }
+    }
+
+    // default colors
+    colorPalette.push_back(Color{0, 0, 0, 0});         // 完全透明
+    colorPalette.push_back(Color{255, 0, 0, 255});     // 撞击红
+    colorPalette.push_back(Color{0, 255, 255, 255});   // 青
+    colorPalette.push_back(Color{255, 0, 255, 255});   // 紫
+    colorPalette.push_back(Color{0, 255, 0, 255});     // 绿
+    colorPalette.push_back(Color{255, 255, 0, 255});   // 黄
+}
+
+void RaylibPixelModel::drawPixelImage(PixelImage* pixelImage, int x, int y)
+{
+    std::vector<Color> colorPalette;
+    setColorList(colorPalette);
+    Color color;
+    int size = pixelImage->size;
+    int index = pixelImage->curr;
+    for (int i = 0; i < pixelImage->height; i++)
+    {
+        for (int j = 0; j < pixelImage->width; j++)
+        {
+            uint8_t temp = pixelImage->pixels[index][i][j];
+            if (250 != temp)
+            {
+                color = colorPalette[temp];
+                DrawRectangle(x + j * size, y + i * size, size, size, color);
+            }
+        }
+    }
+}
+
 //              charactor
 
 void RaylibPixelModel::setTest()
 {
-    id = 1;
-    PixelImage = { { { 250, 250, 5, 250, 250 },
+    id = 0;
+    Image = { { { 250, 250, 5, 250, 250 },
                      { 250, 250, 5, 250, 250 },
                          { 5, 5, 5, 5, 5 },
                      { 250, 250, 5, 250, 250 },
@@ -32,8 +104,8 @@ void RaylibPixelModel::setTest()
 
 void RaylibPixelModel::setFuFu()
 {
-    id = 2;
-    PixelImage = {
+    id = 0;
+    Image = {
         {
         {250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 250, 32, 32, 32, 32, 32, 32, 61, 32, 32, 33, 38, 62, 93, 32, 32, 32, 32, 32, 87, 37, 250, 250, 250, 250, 250, 250, 250},
         {250, 250, 250, 250, 250, 124, 124, 68, 250, 250, 250, 250, 250, 32, 32, 32, 32, 32, 32, 32, 87, 32, 33, 38, 38, 64, 63, 62, 32, 32, 32, 32, 124, 124, 124, 250, 250, 250, 250, 250},
@@ -122,8 +194,8 @@ void RaylibPixelModel::setFuFu()
 
 void RaylibPixelModel::setStudent()
 {
-    id = 3;
-    PixelImage = {
+    id = 1;
+    Image = {
         //                      left
         {
 
@@ -176,8 +248,8 @@ void RaylibPixelModel::setStudent()
 
 void RaylibPixelModel::setHeart()
 {
-    id = -1;
-    PixelImage = {
+    id = 0;
+    Image = {
         {
         { 250, 250, 0,   0,   250, 250, 250, 0,   0,   250, 250 },
         { 250, 0,   251, 251, 0,   250, 0,   251, 251, 0,   250 },
@@ -197,21 +269,24 @@ void RaylibPixelModel::setHeart()
 
 void RaylibPixelModel::setHomeKey1()
 {
-    id = -2;
-    PixelImage = {
+    id = 0;
+    Image = {
         {
-        { 250, 250, 250, 250, 112, 112, 112, 250, 112, 250, 250 },
-        { 250, 250, 250, 112, 250, 250, 250, 112, 112, 250, 250 },
-        { 250, 250, 112, 250, 112, 112, 112, 250, 112, 250, 250 },
-        { 250, 112, 250, 112, 112, 112, 112, 112, 250, 112, 250 },
-        { 112, 250, 112, 112, 112, 112, 112, 112, 112, 250, 112 },
-        { 250, 112, 112, 250, 250, 112, 250, 250, 112, 112, 250 },
-        { 250, 112, 112, 250, 250, 250, 250, 250, 112, 112, 250 },
-        { 250, 112, 112, 112, 250, 250, 250, 112, 112, 112, 250 },
-        { 250, 112, 112, 112, 112, 250, 112, 112, 112, 112, 250 },
-        { 250, 112, 112, 112, 112, 112, 112, 112, 112, 112, 250 }
+        { 250, 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 250 },
+        { 85 , 85 , 123, 123, 123, 112, 112, 112, 123, 112, 123, 85 , 85  },
+        { 85 , 123, 123, 123, 112, 123, 123, 123, 112, 112, 123, 123, 85  },
+        { 85 , 123, 123, 112, 123, 112, 112, 112, 123, 112, 123, 123, 85  },
+        { 85 , 123, 112, 123, 112, 112, 112, 112, 112, 123, 112, 123, 85  },
+        { 85 , 123, 123, 112, 112, 112, 112, 112, 112, 112, 123, 123, 85  },
+        { 85 , 123, 112, 112, 124, 124, 112, 124, 124, 112, 112, 123, 85  },
+        { 85 , 123, 112, 112, 124, 124, 124, 124, 124, 112, 112, 123, 85  },
+        { 85 , 123, 112, 112, 112, 124, 124, 124, 112, 112, 112, 123, 85  },
+        { 85 , 123, 112, 112, 112, 112, 124, 112, 112, 112, 112, 123, 85  },
+        { 85 , 123, 112, 112, 112, 112, 112, 112, 112, 112, 112, 123, 85  },
+        { 85 , 85 , 123, 123, 123, 123, 123, 123, 123, 123, 123, 85 , 85  },
+        { 250, 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 85 , 250 }
         }
     };
-    width = 11;
-    height = 10;
+    width = 13;
+    height = 13;
 }

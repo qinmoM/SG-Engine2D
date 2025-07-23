@@ -1,5 +1,7 @@
 #pragma once
 
+class GameManager;
+
 #include "Map.h"
 #include "RaylibTools.h"
 #include "RaylibPixelModel.h"
@@ -41,7 +43,7 @@ public:
     void drawObjects();
     void drawButtons();
 
-    void drawPixelImage(PixelImage* pixelImage, int x, int y, int index = 0);
+    void drawPixelImage(PixelImage* pixelImage, int x, int y);
 
     void update(float delta);
     void mouseUpdate(float delta);
@@ -50,7 +52,7 @@ public:
     void init1();
 
     void initMap1();
-    void initButton1();
+    void initButton1(GameManager& gameManager);
     void initRange1();
     void initPlayer1();
     void initObject1();
