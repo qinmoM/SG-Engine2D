@@ -460,7 +460,7 @@ void Scene::initButton1(GameManager& gameManager)
         },
         [&gameManager]() -> void
         {
-            gameManager.setMenu();
+            gameManager.goHome();
         })
     );
     

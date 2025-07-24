@@ -1,26 +1,17 @@
 #include "GameManager.h"
 
+//      Creating functions
+
 std::unique_ptr<GameManager> GameManager::create()
 {
     return std::unique_ptr<GameManager>(new GameManager());
 }
 
+//      Basic functions
+
 void GameManager::init()
 {
-    m_menu = Menu::create();
-    m_menu->init();
-    setState(GameState::Menu);
-
-    // test code
-    m_menu->init1(*this);
-
-    // m_scene = Scene::create();
-
-    // // test code
-    // m_scene->initPlayer1();
-    // m_scene->initRange1();
-    // m_scene->initButton1();
-
+    setMenu();
 }
 
 void GameManager::background()
@@ -118,11 +109,13 @@ void GameManager::update(float delta)
     }
 }
 
+//      Special functions
+
 void GameManager::setState(GameState state)
 {
     switch (state)
     {
-    //      None
+    //      Menu
     case GameState::Menu:
         if (nullptr == m_menu)
         {
@@ -168,21 +161,66 @@ void GameManager::releaseOther(GameState state)
     }
 }
 
+void GameManager::goBack()
+{
+    if (m_history.size() < 2)
+    {
+        throw std::logic_error("No history to go back. | GameManager::goBack()");
+    }
+    m_history.pop();
+    if (m_changer.count(m_history.top()) == 0)
+    {
+        throw std::logic_error("Invalid state. | GameManager::goBack()");
+    }
+    m_changer[m_history.top()]();
+}
+
+void GameManager::goHome()
+{
+    if (m_history.empty())
+    {
+        throw std::logic_error("No history to go home. | GameManager::goHome()");
+    }
+    while (m_history.top() != GameState::Menu)
+    {
+        m_history.pop();
+        if (m_history.empty())
+        {
+            throw std::logic_error("No history to go home. | GameManager::goHome()");
+        }
+    }
+    m_history.pop();
+    if (m_changer.count(GameState::Menu) == 0)
+    {
+        throw std::logic_error("Invalid state. | GameManager::goHome()");
+    }
+    m_changer[GameState::Menu]();
+}
+
+void GameManager::changeTo(GameState state)
+{
+    setState(state);
+    m_history.push(state);
+
+    // release resource
+    m_tasks.push(
+        [this, state]()
+        {
+            this->releaseOther(state);
+        }
+    );
+}
+
+//      Different UI interface functions
+
 void GameManager::setScene()
 {
     m_scene = Scene::create();
     m_scene->initPlayer1();
     m_scene->initRange1();
     m_scene->initButton1(*this);
-    setState(GameState::Playing);
 
-    // release resource
-    m_tasks.push(
-        [this]()
-        {
-            this->releaseOther(GameState::Playing);
-        }
-    );
+    changeTo(GameState::Playing);
 }
 
 void GameManager::setMenu()
@@ -190,15 +228,8 @@ void GameManager::setMenu()
     m_menu = Menu::create();
     m_menu->init();
     m_menu->init1(*this);
-    setState(GameState::Menu);
 
-    // release resource
-    m_tasks.push(
-        [this]()
-        {
-            this->releaseOther(GameState::Menu);
-        }
-    );
+    changeTo(GameState::Menu);
 }
 
 GameManager::~GameManager()
