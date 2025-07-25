@@ -14,7 +14,7 @@ public:
 public:
     ~RaylibPixelModel();
     static RaylibPixelModel* create();
-    static void setColorList(std::vector<Color> colorPalette);
+    static void setColorList(std::vector<Color>& colorPalette);
     static void drawPixelImage(PixelImage* pixelImage, int x, int y);
     
     //          character

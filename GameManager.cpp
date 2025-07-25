@@ -150,6 +150,15 @@ void GameManager::setState(GameState state)
     }
 }
 
+void GameManager::release(GameState state)
+{
+    if (m_resetter.find(state) == m_resetter.end())
+    {
+        throw std::logic_error("Invalid state. | GameManager::release()");
+    }
+    m_resetter.find(state)->second();
+}
+
 void GameManager::releaseOther(GameState state)
 {
     for (const auto& [stateTemp, resetter] : m_resetter)

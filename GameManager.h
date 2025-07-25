@@ -18,6 +18,7 @@ public:
     void update(float delta);
 
     void setState(GameState state);
+    void release(GameState state);
     void releaseOther(GameState state);
     void goBack();
     void goHome();

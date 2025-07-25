@@ -16,7 +16,7 @@ RaylibPixelModel* RaylibPixelModel::create()
     return new RaylibPixelModel();
 }
 
-void RaylibPixelModel::setColorList(std::vector<Color> colorPalette)
+void RaylibPixelModel::setColorList(std::vector<Color>& colorPalette)
 {
     colorPalette.clear();
 
