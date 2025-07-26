@@ -443,6 +443,7 @@ void Scene::init1()
 
 void Scene::initButton1(GameManager& gameManager)
 {
+    // home button
     int size = 6;
     int w = GetScreenWidth();
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
@@ -465,6 +466,29 @@ void Scene::initButton1(GameManager& gameManager)
     );
     
     buttons[buttons.size() - 1]->setImage(temp->id, size, temp->Image, temp->width, temp->height);
+
+    // back button
+    size = 6;
+    temp->setBackKey1();
+
+    buttons.push_back(Button::create(0, 0, size * temp->width, size * temp->height,
+        [](Button& b) -> bool
+        {
+            if (IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+            {
+                Vector2 mousePos = GetMousePosition();
+                return b.isClicked(mousePos.x, mousePos.y);
+            }
+            return false;
+        },
+        [&gameManager]() -> void
+        {
+            gameManager.goBack();
+        })
+    );
+
+    buttons[buttons.size() - 1]->setImage(temp->id, size, temp->Image, temp->width, temp->height);
+
 }
 
 void Scene::initMap1()
