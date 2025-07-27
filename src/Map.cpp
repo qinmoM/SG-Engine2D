@@ -134,6 +134,23 @@ void Map::clearPlayer()
     player = nullptr;
 }
 
+//              NPC related functions
+
+void Map::addNPC(float x, float y, int w, int h)
+{
+    NPCs.push_back(std::make_unique<NPC>(x, y, w, h));
+}
+
+void Map::addNPC(float x, float y, int w, int h, CampType camp)
+{
+    NPCs.push_back(std::make_unique<NPC>(x, y, w, h, camp));
+}
+
+std::vector<std::unique_ptr<NPC>>& Map::getNPCs()
+{
+    return NPCs;
+}
+
 //              movable range related functions
 
 void Map::setCoverage(float x, float y, int w, int h)
@@ -146,7 +163,7 @@ void Map::setCoverage(float x, float y, int w, int h)
 void Map::addObstacle(float x, float y, int w, int h)
 {
     Obstacle* obstacle = new Obstacle{ x, y, w, h };
-    obstacles.push_back(obstacle);
+    obstacles.push_back(std::move(obstacle));
 }
 
 void Map::removeObstacle(size_t index)
@@ -330,7 +347,11 @@ bool Map::isColliding(float x, float y, int w, int h, float dx, float dy, int dw
     if (x >= dx && x <= dx + dw && y >= dy && y <= dy + dh                  ||
         x >= dx && x <= dx + dw && y + h >= dy && y + h <= dy + dh          ||
         x + w >= dx && x + w <= dx + dw && y >= dy && y <= dy + dh          ||
-        x + w >= dx && x + w <= dx + dw && y + h >= dy && y + h <= dy + dh  )
+        x + w >= dx && x + w <= dx + dw && y + h >= dy && y + h <= dy + dh  ||
+        dx >= x && dx <= x + w && dy >= y && dy <= y + h                    ||
+        dx >= x && dx <= x + w && dy + dh >= y && dy + dh <= y + h          ||
+        dx + dw >= x && dx + dw <= x + w && dy >= y && dy <= y + h          ||
+        dx + dw >= x && dx + dw <= x + w && dy + dh >= y && dy + dh <= y + h)
     {
         return true;
     }

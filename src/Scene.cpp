@@ -100,6 +100,9 @@ void Scene::draw()
     //                  player
     drawPlayer();
 
+    //                  NPCs
+    drawNPCs();
+
     //                  buttons
     drawButtons();
 
@@ -279,6 +282,21 @@ void Scene::drawButtons()
     }
 }
 
+void Scene::drawNPCs()
+{
+    for (std::unique_ptr<NPC>& npc : m_map->getNPCs())
+    {
+        if (npc->pixelImage)
+        {
+            drawPixelImage(npc->pixelImage.get(), npc->x + offsetX, npc->y + offsetY);
+        }
+        else
+        {
+            DrawRectangle(npc->x + offsetX, npc->y + offsetY, npc->width, npc->height, Color{ 200, 100, 100, 255 });
+        }
+    }
+}
+
 void Scene::drawPixelImage(PixelImage* pixelImage, int x, int y)
 {
     Color color;
@@ -393,6 +411,8 @@ void Scene::update(float delta)
         break;
     }
 
+    // NPCs event
+    NPCUpdate(delta);
 }
 
 void Scene::mouseUpdate(float delta)
@@ -421,6 +441,58 @@ void Scene::buttonUpdate()
         if (button->way && button->way(*button))
         {
             button->event();
+        }
+    }
+}
+
+void Scene::NPCUpdate(float delta)
+{
+    Player* player = m_map->getPlayer();
+    for (std::unique_ptr<NPC>& npc : m_map->getNPCs())
+    {
+        switch (npc->camp)
+        {
+        case CampType::enemy1:
+            if (!player->DMS)
+            {
+                return;
+            }
+
+            // Collision event with player
+            if (npc->touchAttackFunc)
+            {
+                if (m_map->isColliding(player->x, player->y, player->width, player->height,
+                    npc->x, npc->y, npc->width, npc->height))
+                {
+                    if (npc->lastTouchAttackTime > npc->TouchAttackGap)
+                    {
+                        npc->touchAttackFunc(*(player->DMS));
+                        npc->lastTouchAttackTime = 0.0f;
+                    }
+                    else
+                    {
+                        npc->lastTouchAttackTime += delta;
+                    }
+                }
+            }
+
+            // Attack event
+            if (npc->attackFunc)
+            {
+                if (npc->lastAttackTime > npc->AttackGap)
+                {
+                    npc->attackFunc(*(player->DMS));
+                    npc->lastAttackTime = 0.0f;
+                }
+                else
+                {
+                    npc->lastAttackTime += delta;
+                }
+            }
+            break;
+
+        default:
+            break;
         }
     }
 }
@@ -534,7 +606,6 @@ void Scene::initPlayer1()
     m_map->setPlayerDataManage();
     Player* player = m_map->getPlayer();
     player->DMS->setMaxHP(10);
-    player->DMS->addHP(-9);
     m_map->setPlayerPixelImage(temp->id, 4, temp->Image, temp->width, temp->height);
 }
 
@@ -549,6 +620,11 @@ void Scene::initObject1()
     m_map->addObject(170.0f, 800.0f, temp->id, 3, temp->Image, temp->width, temp->height, func);
     m_map->addObject(800.0f, 800.0f, temp->id, 3, temp->Image, temp->width, temp->height, func);
     m_map->addObject(550.0f, 300.0f, temp->id, 3, temp->Image, temp->width, temp->height, func);
+}
+
+void Scene::initNPC1()
+{
+    m_map->addNPC(500, 500, 20, 20, CampType::enemy1);
 }
 
 //                  mouse event

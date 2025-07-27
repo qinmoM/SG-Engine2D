@@ -228,6 +228,7 @@ void GameManager::setScene()
     m_scene->initPlayer1();
     m_scene->initRange1();
     m_scene->initButton1(*this);
+    m_scene->initNPC1();
 
     changeTo(GameState::Playing);
 }

@@ -6,6 +6,7 @@
 #include <functional>
 #include <cmath>
 #include "DataManage.h"
+#include "StateNPC.h"
 
 // a simple pixel image struct// different graphics libraries need to correspond program
 struct PixelImage
@@ -24,6 +25,37 @@ struct PixelImage
         , width(width)
         , height(height)
     { }
+};
+
+struct Bullet
+{
+    float x;                            // x coordinate of the bullet
+    float y;                            // y coordinate of the bullet
+    int width;                          // width of the bullet
+    int height;                         // height of the bullet
+    float angle;                        // direction of the bullet
+    float speed;                        // speed of the bullet
+    CampType camp = CampType::none;     // camp of the bullet
+
+    Bullet(float x, float y, int width, int height)
+        : x(x)
+        , y(y)
+        , width(width)
+        , height(height)
+        , angle(0.0f)
+        , speed(0.0f)
+    { }
+
+    Bullet(float x, float y, int width, int height, float angle, float speed, CampType camp)
+        : x(x)
+        , y(y)
+        , width(width)
+        , height(height)
+        , angle(angle)
+        , speed(speed)
+        , camp(camp)
+    { }
+
 };
 
 // flashlight class// different graphics libraries need to correspond program
@@ -92,6 +124,52 @@ struct Player
     PixelImage* pixelImage = nullptr;   // pointer to the pixel image object
 };
 
+// NPC class
+struct NPC
+{
+    float x;                                                    // x coordinate of the NPC
+    float y;                                                    // y coordinate of the NPC
+    int width;                                                  // width of the NPC
+    int height;                                                 // height of the NPC
+    float speed = 0.0f;                                         // speed of the NPC
+    CampType camp = CampType::none;                             // camp of the NPC
+    std::unique_ptr<Flash> flash = nullptr;                     // pointer to the flashlight object
+    std::unique_ptr<DataManage> DMS = nullptr;                  // pointer to the data manage object
+    std::unique_ptr<PixelImage> pixelImage = nullptr;           // pointer to the pixel image object
+
+    float TouchAttackGap = 1.0f;                                // time gap between two touch attack
+    float lastTouchAttackTime = 0.0f;                           // last touch attack time of the NPC
+    std::function<void(DataManage&)> touchAttackFunc = nullptr; // function when the NPC is attacked by touch
+
+    float AttackGap = 4.0f;                                     // time gap between two attack
+    float lastAttackTime = 0.0f;                                // last attack time of the NPC
+    std::function<void(DataManage&)> attackFunc = nullptr;      // function when the NPC is attacked by other NPC
+
+    NPC(float x, float y, int w, int h)
+        : x(x)
+        , y(y)
+        , width(w)
+        , height(h)
+    { }
+
+    NPC(float x, float y, int w, int h, CampType camp)
+        : x(x)
+        , y(y)
+        , width(w)
+        , height(h)
+        , camp(camp)
+    {
+        if (camp == CampType::enemy1)
+        {
+            touchAttackFunc = [this](DataManage& DMS) -> void
+            {
+                DMS.addHP(-3);
+            };
+        }
+    }
+
+};
+
 // obstacle class
 struct Obstacle
 {
@@ -121,9 +199,11 @@ class Map
 {
 protected:
     std::shared_ptr<Coverage> coverage = nullptr;               // movable range of the player
+    std::vector<std::unique_ptr<NPC>> NPCs;                     // list of NPC in the map
     std::vector<Obstacle*> obstacles;                           // list of obstacles in the map
     std::vector<std::shared_ptr<Object>> objects;               // list of objects in the map
     Player* player;                                             // player in the map
+
 public:
     Map();                                                      // constructor
     virtual ~Map();                                             // destructor
@@ -142,6 +222,11 @@ public:
     Player* getPlayer();                                        // get the player in the map
     void clearPlayer();                                         // remove the player from the map
     void movePlayer(int dx, int dy);                            // move the player by dx and dy
+
+    // NPC related functions
+    void addNPC(float x, float y, int w, int h);                // add an NPC with x, y coordinates and width, height
+    void addNPC(float x, float y, int w, int h, CampType camp); // add an NPC with x, y coordinates, width, height and camp
+    std::vector<std::unique_ptr<NPC>>& getNPCs();               // get the list of NPCs in the map
 
     // movable range related functions
     void setCoverage(float x, float y, int w, int h);           // set the movable range of the player

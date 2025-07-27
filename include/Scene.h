@@ -42,12 +42,14 @@ public:
     void drawObstacles();
     void drawObjects();
     void drawButtons();
+    void drawNPCs();
 
     void drawPixelImage(PixelImage* pixelImage, int x, int y);
 
     void update(float delta);
     void mouseUpdate(float delta);
     void buttonUpdate();
+    void NPCUpdate(float delta);
 
     void init1();
 
@@ -56,6 +58,7 @@ public:
     void initRange1();
     void initPlayer1();
     void initObject1();
+    void initNPC1();
     void mouseUpdate1(float delta);
 
 };
