@@ -27,6 +27,7 @@ struct PixelImage
     { }
 };
 
+// bullet class
 struct Bullet
 {
     float x;                            // x coordinate of the bullet
@@ -36,6 +37,9 @@ struct Bullet
     float angle;                        // direction of the bullet
     float speed;                        // speed of the bullet
     CampType camp = CampType::none;     // camp of the bullet
+    float lifeTime = 0.0f;              // life time of the bullet
+    // std::function<void(DataManage*)> dataFunc = nullptr;
+    //                                     // function when the bullet is triggered by event
 
     Bullet(float x, float y, int width, int height)
         : x(x)
@@ -70,6 +74,20 @@ struct Flash
     float angleOfView = 70.0f;          // angle of view of the flashlight
     float vicinity = 10.0f;             // intensity of the flashlight
     float distance = 400.0f;            // distance of the flashlight
+
+    Flash() = default;
+
+    Flash(bool on, bool isObstructed, bool precision, float x, float y, float angle, float angleOfView, float vicinity, float distance)
+        : on(on)
+        , isObstructed(isObstructed)
+        , precision(precision)
+        , x(x)
+        , y(y)
+        , angle(angle)
+        , angleOfView(angleOfView)
+        , vicinity(vicinity)
+        , distance(distance)
+    { }
 };
 
 // Fallen object class
@@ -80,14 +98,15 @@ struct Object
     int width;                          // pixel width of the object
     int height;                         // pixel height of the object
     PixelImage* pixelImage = nullptr;   // pointer to the pixel image object
+    bool shouldDelete = false;          // whether the object should be deleted or not
 
     //              Functions
 
-    std::function<void(DataManage*)> dataFunc = nullptr;
+    std::function<void(Object&, DataManage*)> dataFunc = nullptr;
 
     //              Constructor and Destructor
 
-    Object(float x, float y, int w, int h, std::function<void(DataManage*)> dataFunc = nullptr)
+    Object(float x, float y, int w, int h, std::function<void(Object&, DataManage*)> dataFunc = nullptr)
         : x(x)
         , y(y)
         , width(w)
@@ -95,7 +114,7 @@ struct Object
         , dataFunc(dataFunc)
     { }
 
-    Object(float x, float y, PixelImage* pixelImage, int w, int h, std::function<void(DataManage*)> dataFunc = nullptr)
+    Object(float x, float y, PixelImage* pixelImage, int w, int h, std::function<void(Object&, DataManage*)> dataFunc = nullptr)
         : x(x)
         , y(y)
         , width(w)
@@ -137,20 +156,20 @@ struct NPC
     std::unique_ptr<DataManage> DMS = nullptr;                  // pointer to the data manage object
     std::unique_ptr<PixelImage> pixelImage = nullptr;           // pointer to the pixel image object
 
+    //                  touch
     float TouchAttackGap = 1.0f;                                // time gap between two touch attack
     float lastTouchAttackTime = 0.0f;                           // last touch attack time of the NPC
     std::function<void(DataManage&)> touchAttackFunc = nullptr; // function when the NPC is attacked by touch
 
+    //                  event
+    float EventGap = 1.0f;                                      // time gap between two event
+    float lastEventTime = 0.0f;                                 // last event time of the NPC
+    std::function<void(NPC&)> eventFunc = nullptr;                  // function when the NPC is triggered by event
+
+    //                  attack
     float AttackGap = 4.0f;                                     // time gap between two attack
     float lastAttackTime = 0.0f;                                // last attack time of the NPC
     std::function<void(DataManage&)> attackFunc = nullptr;      // function when the NPC is attacked by other NPC
-
-    NPC(float x, float y, int w, int h)
-        : x(x)
-        , y(y)
-        , width(w)
-        , height(h)
-    { }
 
     NPC(float x, float y, int w, int h, CampType camp)
         : x(x)
@@ -158,14 +177,29 @@ struct NPC
         , width(w)
         , height(h)
         , camp(camp)
+    { }
+
+    NPC(float x, float y, int w, int h, CampType camp, std::function<void(DataManage&)> touchAttackFunc,
+        std::function<void(NPC&)> eventFunc, std::function<void(DataManage&)> attackFunc)
+        : x(x)
+        , y(y)
+        , width(w)
+        , height(h)
+        , camp(camp)
+        , touchAttackFunc(touchAttackFunc)
+        , eventFunc(eventFunc)
+        , attackFunc(attackFunc)
+    { }
+
+private:
+    void setPixelImage(int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height)
     {
-        if (camp == CampType::enemy1)
-        {
-            touchAttackFunc = [this](DataManage& DMS) -> void
-            {
-                DMS.addHP(-3);
-            };
-        }
+        pixelImage = std::make_unique<PixelImage>(id, size, pixels, width, height);
+    }
+
+    void setFlash(bool on, bool isObstructed, bool precision, float x, float y, float angle, float angleOfView, float vicinity, float distance)
+    {
+        flash = std::make_unique<Flash>(on, isObstructed, precision, x, y, angle, angleOfView, vicinity, distance);
     }
 
 };
@@ -202,6 +236,7 @@ protected:
     std::vector<std::unique_ptr<NPC>> NPCs;                     // list of NPC in the map
     std::vector<Obstacle*> obstacles;                           // list of obstacles in the map
     std::vector<std::shared_ptr<Object>> objects;               // list of objects in the map
+    std::vector<Bullet> bullets;                                 // list of bullets in the map
     Player* player;                                             // player in the map
 
 public:
@@ -224,9 +259,16 @@ public:
     void movePlayer(int dx, int dy);                            // move the player by dx and dy
 
     // NPC related functions
-    void addNPC(float x, float y, int w, int h);                // add an NPC with x, y coordinates and width, height
     void addNPC(float x, float y, int w, int h, CampType camp); // add an NPC with x, y coordinates, width, height and camp
+    void addNPC(float x, float y, int w, int h, CampType camp, std::function<void(DataManage&)> touchAttackFunc, std::function<void(NPC&)> eventFunc, std::function<void(DataManage&)> attackFunc);
+                                                                // add an NPC with x, y coordinates, width, height, camp, touch attack function and attack function
     std::vector<std::unique_ptr<NPC>>& getNPCs();               // get the list of NPCs in the map
+
+    // bullet related functions
+    void addBullet(float x, float y, int w, int h, float angle, float speed, CampType camp);
+                                                                // add a bullet to the map
+    void clearBullets();                                        // remove all bullets from the map
+    std::vector<Bullet>& getBullets();                          // get the list of bullets in the map
 
     // movable range related functions
     void setCoverage(float x, float y, int w, int h);           // set the movable range of the player
@@ -241,13 +283,14 @@ public:
     void moveObstacle(size_t index, int dx, int dy);            // move an obstacle by index by dx and dy
 
     // object related functions
-    void addObject(float x, float y, int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc = nullptr);
+    void addObject(float x, float y, int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(Object&, DataManage*)> dataFunc = nullptr);
                                                                 // add an object to the map
-    void addObject(float x, float y, int w, int h, std::function<void(DataManage*)> dataFunc = nullptr);
+    void addObject(float x, float y, int w, int h, std::function<void(Object&, DataManage*)> dataFunc = nullptr);
                                                                 // add an object to the map
     void removeObject(size_t index);                            // remove an object from the map by index
     void clearObjects();                                        // remove all objects from the map
     int numObjects();                                           // get the number of objects in the map
+    std::vector<std::shared_ptr<Object>>& getObjects();         // get the list of objects in the map
     std::shared_ptr<Object> getObject(size_t index);            // get an object by index
     void moveObject(size_t index, int dx, int dy);              // move an object by index by dx and dy
 

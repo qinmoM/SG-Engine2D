@@ -12,6 +12,8 @@ public:
     int width;                                          // width of the button
     int height;                                         // height of the button
 
+    bool shouldDelete = false;                          // flag to delete the button
+
     std::unique_ptr<PixelImage> image = nullptr;        // image of the button
 
 public:

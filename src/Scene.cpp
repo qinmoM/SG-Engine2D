@@ -110,7 +110,8 @@ void Scene::draw()
 
 void Scene::drawBackground()
 {
-    ClearBackground(Color{ 205, 205, 215, 255 });
+    // ClearBackground(Color{ 205, 205, 215, 255 });
+    ClearBackground(Color{ 30, 30, 30, 255 });
 }
 
 void Scene::drawPlayer()
@@ -376,19 +377,7 @@ void Scene::update(float delta)
     }
 
     // objects
-    int allObjects = m_map->numObjects();
-    for (int i = 0; i < allObjects; i++)
-    {
-        if (m_map->isCollidingObject(i))
-        {
-            std::shared_ptr<Object> object = m_map->getObject(i);
-            if (object->dataFunc && player->DMS)
-            {
-                object->dataFunc(player->DMS);
-                m_map->removeObject(i);
-            }
-        }
-    }
+    objectUpdate(delta);
 
     // player pixel image index
     switch (player->pixelImage->id)
@@ -434,13 +423,73 @@ void Scene::mouseUpdate(float delta)
 
 }
 
+void Scene::objectUpdate(float delta)
+{
+    // Player* player = m_map->getPlayer();
+    // int allObjects = m_map->numObjects();
+    // for (int i = 0; i < allObjects; i++)
+    // {
+    //     if (m_map->isCollidingObject(i))
+    //     {
+    //         std::shared_ptr<Object> object = m_map->getObject(i);
+    //         if (object->dataFunc && player->DMS)
+    //         {
+    //             object->dataFunc(player->DMS);
+    //             m_map->removeObject(i);
+    //         }
+    //     }
+    // }
+
+    Player* player = m_map->getPlayer();
+    std::vector<std::shared_ptr<Object>>& objects = m_map->getObjects();
+    std::vector<std::shared_ptr<Object>>::iterator it = objects.begin();
+    while (it != objects.end())
+    {
+        if ((*it)->dataFunc && player->DMS)
+        {
+            if (m_map->isColliding(player->x, player->y, player->width, player->height,
+                (*it)->x, (*it)->y, (*it)->width, (*it)->height))
+            {
+                (*it)->dataFunc(*(*it), player->DMS);
+            }
+        }
+
+        if ((*it)->shouldDelete)
+        {
+            it = objects.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
 void Scene::buttonUpdate()
 {
-    for (std::unique_ptr<Button>& button : buttons)
+    // for (std::unique_ptr<Button>& button : buttons)
+    // {
+    //     if (button->way && button->way(*button))
+    //     {
+    //         button->event();
+    //     }
+    // }
+
+    std::vector<std::unique_ptr<Button>>::iterator it = buttons.begin();
+    while (it != buttons.end())
     {
-        if (button->way && button->way(*button))
+        if ((*it)->way && (*it)->way(*(*it)))
         {
-            button->event();
+            (*it)->event();
+        }
+
+        if ((*it)->shouldDelete)
+        {
+            it = buttons.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
 }
@@ -588,11 +637,6 @@ void Scene::initMap1()
     m_map->addObstacle(740, 615, 20, 250);
 }
 
-void Scene::initRange1()
-{
-    m_map->setCoverage(100, 100, 1300, 800);
-}
-
 void Scene::initPlayer1()
 {
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
@@ -601,7 +645,8 @@ void Scene::initPlayer1()
     temp->setStudent();
 
     // player
-    m_map->setPlayer(176, 650, 20, 20);
+    // m_map->setPlayer(176, 650, 20, 20);
+    m_map->setPlayer(500, 550, 20, 20);
     m_map->setPlayerSpeed(185);
     m_map->setPlayerDataManage();
     Player* player = m_map->getPlayer();
@@ -611,8 +656,9 @@ void Scene::initPlayer1()
 
 void Scene::initObject1()
 {
-    void (*func)(DataManage*) = [](DataManage* data) -> void {
+    void (*func)(Object&, DataManage*) = [](Object& object, DataManage* data) -> void {
         data->addHP(1);
+        object.shouldDelete = true;
     };
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
     temp->setHeart();
@@ -624,7 +670,42 @@ void Scene::initObject1()
 
 void Scene::initNPC1()
 {
-    m_map->addNPC(500, 500, 20, 20, CampType::enemy1);
+    m_map->addNPC(500, 500, 20, 20, CampType::enemy1,
+        [](DataManage& data) -> void
+        {
+            data.addHP(-3);
+        },
+        [this](NPC& npc) -> void
+        {
+            Player* player = this->m_map->getPlayer();
+            float angle = std::atan2((npc.y + npc.height / 2) - (player->y + player->height / 2),
+                (npc.x + npc.width / 2) - (player->x + player->width / 2));
+            this->m_map->addBullet(npc.x + npc.width / 2, npc.y + npc.height / 2, 10, 10, angle, 100.0f, CampType::enemy1);
+        },
+        nullptr
+    );
+}
+
+void Scene::init2(GameManager& gameManager)
+{
+    initPlayer1();
+    initButton1(gameManager);
+    m_map->setCoverage(450, 400, 580, 320);
+    std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
+
+    temp->setBedroom1();
+    int size = 20;
+    m_map->addObject(450, 400, temp->id, size, temp->Image, temp->width, temp->height);
+
+    temp->setCupboard1();
+    size = 5;
+    m_map->addObject(700, 400, temp->id, size, temp->Image, temp->width, temp->height);
+    m_map->addObstacle(700, 400, size * temp->width, size * temp->height);
+
+    temp->setBed1();
+    size = 10;
+    m_map->addObject(880, 550, temp->id, size, temp->Image, temp->width, temp->height);
+    m_map->addObstacle(880, 550, size * temp->width, size * temp->height);
 }
 
 //                  mouse event

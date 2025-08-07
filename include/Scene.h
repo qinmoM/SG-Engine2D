@@ -48,14 +48,15 @@ public:
 
     void update(float delta);
     void mouseUpdate(float delta);
+    void objectUpdate(float delta);
     void buttonUpdate();
     void NPCUpdate(float delta);
 
     void init1();
+    void init2(GameManager& gameManager);
 
     void initMap1();
     void initButton1(GameManager& gameManager);
-    void initRange1();
     void initPlayer1();
     void initObject1();
     void initNPC1();

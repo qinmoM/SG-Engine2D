@@ -16,6 +16,11 @@ public:
     static RaylibPixelModel* create();
     static void setColorList(std::vector<Color>& colorPalette);
     static void drawPixelImage(PixelImage* pixelImage, int x, int y);
+
+    //          scene
+    void setBed1();
+    void setCupboard1();
+    void setBedroom1();
     
     //          character
     void setTest();

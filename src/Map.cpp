@@ -136,19 +136,26 @@ void Map::clearPlayer()
 
 //              NPC related functions
 
-void Map::addNPC(float x, float y, int w, int h)
-{
-    NPCs.push_back(std::make_unique<NPC>(x, y, w, h));
-}
-
 void Map::addNPC(float x, float y, int w, int h, CampType camp)
 {
     NPCs.push_back(std::make_unique<NPC>(x, y, w, h, camp));
 }
 
+void Map::addNPC(float x, float y, int w, int h, CampType camp, std::function<void(DataManage&)> touchAttackFunc, std::function<void(NPC&)> eventFunc, std::function<void(DataManage&)> attackFunc)
+{
+    NPCs.push_back(std::make_unique<NPC>(x, y, w, h, camp, touchAttackFunc, eventFunc, attackFunc));
+}
+
 std::vector<std::unique_ptr<NPC>>& Map::getNPCs()
 {
     return NPCs;
+}
+
+//              Bullet related functions
+
+void Map::addBullet(float x, float y, int w, int h, float angle, float speed, CampType camp)
+{
+
 }
 
 //              movable range related functions
@@ -213,13 +220,13 @@ void Map::moveObstacle(size_t index, int x, int y)
 
 //              Object related functions
 
-void Map::addObject(float x, float y, int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(DataManage*)> dataFunc)
+void Map::addObject(float x, float y, int id, int size, std::vector<std::vector<std::vector<uint8_t>>> pixels, int width, int height, std::function<void(Object&, DataManage*)> dataFunc)
 {
     PixelImage* pixelImage = new PixelImage(id, size, pixels, width, height);
     objects.push_back(std::make_shared<Object>(x, y, pixelImage, width * size, height * size, dataFunc));
 }
 
-void Map::addObject(float x, float y, int w, int h, std::function<void(DataManage*)> dataFunc)
+void Map::addObject(float x, float y, int w, int h, std::function<void(Object&, DataManage*)> dataFunc)
 {
     objects.push_back(std::make_shared<Object>(x, y, w, h, dataFunc));
 }
@@ -241,6 +248,11 @@ void Map::clearObjects()
 int Map::numObjects()
 {
     return objects.size();
+}
+
+std::vector<std::shared_ptr<Object>>& Map::getObjects()
+{
+    return objects;
 }
 
 std::shared_ptr<Object> Map::getObject(size_t index)
@@ -266,6 +278,10 @@ void Map::moveObject(size_t index, int x, int y)
 
 bool Map::isCollidingCoverage(int x, int y)
 {
+    if (!coverage)
+    {
+        return true;
+    }
     if (x > coverage->x && x + player->width < coverage->x + coverage->width &&
         y > coverage->y && y + player->height < coverage->y + coverage->height)
     {

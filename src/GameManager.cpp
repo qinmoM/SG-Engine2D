@@ -225,10 +225,7 @@ void GameManager::changeTo(GameState state)
 void GameManager::setScene()
 {
     m_scene = Scene::create();
-    m_scene->initPlayer1();
-    m_scene->initRange1();
-    m_scene->initButton1(*this);
-    m_scene->initNPC1();
+    m_scene->init2(*this);
 
     changeTo(GameState::Playing);
 }
