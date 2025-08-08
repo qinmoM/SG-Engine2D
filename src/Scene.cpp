@@ -647,7 +647,7 @@ void Scene::initPlayer1()
     // player
     // m_map->setPlayer(176, 650, 20, 20);
     m_map->setPlayer(500, 550, 20, 20);
-    m_map->setPlayerSpeed(185);
+    m_map->setPlayerSpeed(170);
     m_map->setPlayerDataManage();
     Player* player = m_map->getPlayer();
     player->DMS->setMaxHP(10);
@@ -690,22 +690,22 @@ void Scene::init2(GameManager& gameManager)
 {
     initPlayer1();
     initButton1(gameManager);
-    m_map->setCoverage(450, 400, 580, 320);
+    m_map->setCoverage(480, 370, 580, 350);
     std::unique_ptr<RaylibPixelModel> temp(RaylibPixelModel::create());
 
     temp->setBedroom1();
     int size = 20;
-    m_map->addObject(450, 400, temp->id, size, temp->Image, temp->width, temp->height);
+    m_map->addObject(440, 240, temp->id, size, temp->Image, temp->width, temp->height);
 
     temp->setCupboard1();
     size = 5;
-    m_map->addObject(700, 400, temp->id, size, temp->Image, temp->width, temp->height);
-    m_map->addObstacle(700, 400, size * temp->width, size * temp->height);
+    m_map->addObject(700, 355, temp->id, size, temp->Image, temp->width, temp->height);
+    m_map->addObstacle(700, 355, size * temp->width, size * temp->height);
 
     temp->setBed1();
     size = 10;
-    m_map->addObject(880, 550, temp->id, size, temp->Image, temp->width, temp->height);
-    m_map->addObstacle(880, 550, size * temp->width, size * temp->height);
+    m_map->addObject(900, 550, temp->id, size, temp->Image, temp->width, temp->height);
+    m_map->addObstacle(900, 550, size * temp->width, size * temp->height);
 }
 
 //                  mouse event
